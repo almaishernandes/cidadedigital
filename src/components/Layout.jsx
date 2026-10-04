@@ -35,6 +35,10 @@ export default function Layout() {
             </NavLink>
           )}
         </nav>
+
+        {/* Controles contextuais da página atual (ex.: cidade/modo do mapa) */}
+        <div id="barra-contextual" className="flex items-center gap-2" />
+
         <div className="ml-auto flex items-center gap-2 text-sm sm:gap-3">
           {usuario ? (
             <>

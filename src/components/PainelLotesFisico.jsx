@@ -113,6 +113,7 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
                     <MapPin size={11} />
                     {l.endereco}
                     {l.numero ? `, ${l.numero}` : ''}
+                    {l.cep ? ` — CEP ${l.cep}` : ''}
                   </span>
                 </button>
               </li>

@@ -88,6 +88,7 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
       await atualizarEnderecoLote(loteId, {
         endereco,
         numero,
+        cep,
         lat: encontrado.lat,
         lng: encontrado.lng,
       });

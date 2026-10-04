@@ -89,6 +89,7 @@ function Solicitar({ aoSolicitar }) {
       const loteId = await criarLote(cidade, {
         endereco,
         numero,
+        cep,
         lat: encontrado.lat,
         lng: encontrado.lng,
       });

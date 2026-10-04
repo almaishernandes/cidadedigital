@@ -34,7 +34,7 @@ export async function buscarLotesParaLicenca(cidade, termo) {
   return data ?? [];
 }
 
-export async function atualizarEnderecoLote(loteId, { endereco, numero, lat, lng, areaM2 }) {
+export async function atualizarEnderecoLote(loteId, { endereco, numero, cep, lat, lng, areaM2 }) {
   const { error } = await supabase.rpc('atualizar_endereco_lote', {
     p_lote_id: loteId,
     p_endereco: endereco,
@@ -42,17 +42,19 @@ export async function atualizarEnderecoLote(loteId, { endereco, numero, lat, lng
     p_lat: lat,
     p_lng: lng,
     p_area_m2: areaM2 ?? null,
+    p_cep: cep || null,
   });
   if (error) throw error;
 }
 
-export async function criarLote(cidade, { endereco, numero, lat, lng }) {
+export async function criarLote(cidade, { endereco, numero, cep, lat, lng }) {
   const { data, error } = await supabase.rpc('criar_lote', {
     p_cidade: cidade,
     p_endereco: endereco,
     p_numero: numero || null,
     p_lat: lat,
     p_lng: lng,
+    p_cep: cep || null,
   });
   if (error) throw error;
   return data; // uuid do novo lote

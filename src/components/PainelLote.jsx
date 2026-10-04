@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Ruler, Search } from 'lucide-react';
+import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Search } from 'lucide-react';
 import StatusBadge from './StatusBadge.jsx';
 import {
   buscarEstabelecimentoPorLote,
@@ -76,12 +76,8 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
           <p className="flex items-center gap-1.5 text-sm text-slate-500">
             <MapPin size={14} /> {lote.endereco}
             {lote.numero ? `, ${lote.numero}` : ''}
+            {lote.cep ? ` — CEP ${lote.cep}` : ''}
           </p>
-          {lote.area_m2 != null && (
-            <p className="flex items-center gap-1.5 text-sm text-slate-500">
-              <Ruler size={14} /> {Number(lote.area_m2).toLocaleString('pt-BR')} m²
-            </p>
-          )}
         </div>
         <button onClick={aoFechar} className="rounded p-1 hover:bg-slate-100" aria-label="Fechar">
           <X size={20} />
@@ -103,11 +99,6 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
         {estab && (
           <>
             {estab.descricao && <p className="text-sm text-slate-700">{estab.descricao}</p>}
-            {estab.categoria && (
-              <span className="inline-block rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-600">
-                {estab.categoria}
-              </span>
-            )}
 
             <div className="flex flex-wrap gap-2">
               {estab.telefone_whatsapp && (

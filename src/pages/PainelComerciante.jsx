@@ -208,6 +208,7 @@ export default function PainelComerciante() {
   const [sel, setSel] = useState(null);
   const [erro, setErro] = useState(null);
   const [carregando, setCarregando] = useState(true);
+  const [mostrarSolicitar, setMostrarSolicitar] = useState(false);
 
   const recarregar = useCallback(async () => {
     setCarregando(true);
@@ -232,12 +233,15 @@ export default function PainelComerciante() {
       if (perfil?.funcao === 'visitante') await virarComerciante();
       await solicitarLicenca(loteId);
       await recarregar();
+      setMostrarSolicitar(false);
     } catch (e) {
       setErro(e.message);
     }
   }
 
   if (carregando) return <p className="p-6 text-sm text-slate-500">Carregando…</p>;
+
+  const exibirFormSolicitar = mostrarSolicitar || licencas.length === 0;
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-6">
@@ -246,7 +250,16 @@ export default function PainelComerciante() {
       </h1>
       {erro && <p className="text-sm text-red-600">{erro}</p>}
 
-      <Solicitar aoSolicitar={pedir} />
+      {exibirFormSolicitar ? (
+        <Solicitar aoSolicitar={pedir} />
+      ) : (
+        <button
+          onClick={() => setMostrarSolicitar(true)}
+          className="rounded-lg border border-dashed px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+        >
+          + Solicitar licença para outro endereço
+        </button>
+      )}
 
       {licencas.length > 0 && (
         <>

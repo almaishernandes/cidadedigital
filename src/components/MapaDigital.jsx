@@ -69,7 +69,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col items-center overflow-y-auto p-2">
+      <div className="flex flex-1 flex-col items-center overflow-y-auto bg-slate-950 p-2">
         {erro && <p className="p-2 text-sm text-red-400">{erro}</p>}
         {!carregando && vitrines.length === 0 && !erro && (
           <p className="p-2 text-xs text-slate-500">
@@ -84,7 +84,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
               return (
                 <div
                   key={pos}
-                  className="flex h-9 w-9 items-center justify-center rounded-sm border border-dashed border-slate-700/70 text-[9px] font-medium text-slate-600"
+                  className="flex h-9 w-9 items-center justify-center rounded-sm border border-slate-600 bg-slate-800 text-[9px] font-medium text-slate-400"
                 >
                   {pos}
                 </div>

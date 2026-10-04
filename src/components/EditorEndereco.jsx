@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Search, Check, Mail } from 'lucide-react';
 import { buscarCep, formatarCep } from '../lib/cep.js';
-import { geocodarEndereco } from '../lib/geocode.js';
+import { geocodarComFallback } from '../lib/geocode.js';
 import { atualizarEnderecoLote } from '../lib/supabase/gestao.js';
 
 export default function EditorEndereco({ loteId, cidade, enderecoInicial, numeroInicial, aoSalvar }) {
@@ -46,8 +46,13 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
     try {
       const cidadeConsulta = localidadeCep?.cidade || cidade;
       const ufConsulta = localidadeCep?.uf || 'SP';
-      const partes = [endereco, numero, bairro, cidadeConsulta, ufConsulta, 'Brasil'].filter(Boolean);
-      const r = await geocodarEndereco(partes.join(', '));
+      const r = await geocodarComFallback({
+        endereco,
+        numero,
+        bairro,
+        cidade: cidadeConsulta,
+        uf: ufConsulta,
+      });
       if (!r) setErro('Endereço não encontrado no mapa. Confira a rua e o número.');
       else setEncontrado(r);
     } catch (err) {

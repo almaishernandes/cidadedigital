@@ -1,6 +1,15 @@
 import { useState } from 'react';
-import { MapPinned, Map as MapIcon, Radar, PanelRightClose, PanelRightOpen, ChevronRight } from 'lucide-react';
+import {
+  MapPinned,
+  Map as MapIcon,
+  Radar,
+  Grid3x3,
+  PanelRightClose,
+  PanelRightOpen,
+  ChevronRight,
+} from 'lucide-react';
 import MapaLotes from '../components/MapaLotes.jsx';
+import MapaDigital from '../components/MapaDigital.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
 import PainelLotesFisico from '../components/PainelLotesFisico.jsx';
@@ -10,10 +19,16 @@ const CIDADES = {
   'Parapuã': { longitude: -50.7953, latitude: -21.7797, zoom: 15 },
 };
 
+const MODOS = [
+  { chave: 'fisico', rotulo: 'Físico', Icone: MapIcon, cls: 'bg-blue-600' },
+  { chave: 'virtual', rotulo: 'Virtual', Icone: Radar, cls: 'bg-indigo-600' },
+  { chave: 'digital', rotulo: 'Digital', Icone: Grid3x3, cls: 'bg-slate-800' },
+];
+
 export default function MapaPublico() {
   const [cidade, setCidade] = useState('Osvaldo Cruz');
   const [lote, setLote] = useState(null);
-  const [modo, setModo] = useState('fisico'); // 'fisico' | 'virtual'
+  const [modo, setModo] = useState('fisico'); // 'fisico' | 'virtual' | 'digital'
   const [voarPara, setVoarPara] = useState(null);
   const [painelAberto, setPainelAberto] = useState(true);
 
@@ -31,21 +46,27 @@ export default function MapaPublico() {
       status_vitrine: v.status_vitrine ?? 'ocupado',
       numero_licenca: v.numero_licenca ?? null,
     });
-    setVoarPara({ latitude: v.latitude, longitude: v.longitude, token: Date.now() });
+    if (v.latitude != null && v.longitude != null) {
+      setVoarPara({ latitude: v.latitude, longitude: v.longitude, token: Date.now() });
+    }
   }
 
   return (
     <div className={`relative flex h-full w-full ${painelAberto ? 'flex-col sm:flex-row' : ''}`}>
       <div className="relative min-h-0 flex-1">
-        <MapaLotes
-          key={cidade}
-          cidade={cidade}
-          viewInicial={CIDADES[cidade]}
-          loteSelecionado={lote?.lote_id ?? null}
-          onSelecionarLote={aoSelecionarNoMapa}
-          modo={modo}
-          voarPara={voarPara}
-        />
+        {modo === 'digital' ? (
+          <MapaDigital cidade={cidade} loteSelecionado={lote?.lote_id ?? null} aoSelecionar={aoSelecionarNaLista} />
+        ) : (
+          <MapaLotes
+            key={cidade}
+            cidade={cidade}
+            viewInicial={CIDADES[cidade]}
+            loteSelecionado={lote?.lote_id ?? null}
+            onSelecionarLote={aoSelecionarNoMapa}
+            modo={modo}
+            voarPara={voarPara}
+          />
+        )}
 
         <header className="absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 shadow sm:gap-3 sm:px-4 sm:py-2">
           <MapPinned size={18} className="hidden text-blue-600 sm:block" />
@@ -62,22 +83,17 @@ export default function MapaPublico() {
             ))}
           </select>
           <div className="flex overflow-hidden rounded-full border text-xs">
-            <button
-              onClick={() => setModo('fisico')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 ${
-                modo === 'fisico' ? 'bg-blue-600 text-white' : 'text-slate-600'
-              }`}
-            >
-              <MapIcon size={13} /> Físico
-            </button>
-            <button
-              onClick={() => setModo('virtual')}
-              className={`inline-flex items-center gap-1 px-2.5 py-1 ${
-                modo === 'virtual' ? 'bg-indigo-600 text-white' : 'text-slate-600'
-              }`}
-            >
-              <Radar size={13} /> Virtual
-            </button>
+            {MODOS.map(({ chave, rotulo, Icone, cls }) => (
+              <button
+                key={chave}
+                onClick={() => setModo(chave)}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 ${
+                  modo === chave ? `${cls} text-white` : 'text-slate-600'
+                }`}
+              >
+                <Icone size={13} /> {rotulo}
+              </button>
+            ))}
           </div>
           <button
             onClick={() => setPainelAberto((v) => !v)}
@@ -105,10 +121,10 @@ export default function MapaPublico() {
               lote ? '-translate-x-full' : 'translate-x-0'
             }`}
           >
-            {modo === 'virtual' ? (
-              <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
-            ) : (
+            {modo === 'fisico' ? (
               <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+            ) : (
+              <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
             )}
           </div>
 

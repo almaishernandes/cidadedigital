@@ -80,6 +80,19 @@ function centroideBbox(geometry) {
   return [(minX + maxX) / 2, (minY + maxY) / 2];
 }
 
+// Modo virtual: mantém só ruas (+ nome) e esconde prédios, POIs, bairros etc.
+// Camadas próprias (lotes-*) nunca são tocadas aqui.
+const SOURCE_LAYERS_MANTIDAS_VIRTUAL = new Set(['transportation', 'transportation_name']);
+
+function aplicarVisibilidadeRuas(map, somenteRuas) {
+  if (!map || !map.isStyleLoaded()) return;
+  for (const l of map.getStyle().layers) {
+    if (l.id.startsWith('lotes-') || l.type === 'background') continue;
+    const manter = SOURCE_LAYERS_MANTIDAS_VIRTUAL.has(l['source-layer']);
+    map.setLayoutProperty(l.id, 'visibility', somenteRuas && !manter ? 'none' : 'visible');
+  }
+}
+
 function paraPontos(fc) {
   return {
     type: 'FeatureCollection',
@@ -136,11 +149,25 @@ export default function MapaLotes({
   useEffect(() => () => clearTimeout(timer.current), []);
 
   useEffect(() => {
+    const mapa = mapRef.current?.getMap();
+    if (!mapa) return;
+    const aplicar = () => aplicarVisibilidadeRuas(mapa, modo === 'virtual');
+    aplicar();
+    mapa.on('styledata', aplicar);
+    return () => mapa.off('styledata', aplicar);
+  }, [modo]);
+
+  useEffect(() => {
     if (!voarPara) return;
     const mapa = mapRef.current?.getMap();
     if (!mapa) return;
     mapa.flyTo({ center: [voarPara.longitude, voarPara.latitude], zoom: 18, speed: 1.2 });
   }, [voarPara]);
+
+  const aoCarregar = useCallback(() => {
+    recarregar();
+    aplicarVisibilidadeRuas(mapRef.current?.getMap(), modo === 'virtual');
+  }, [recarregar, modo]);
 
   const aoClicar = useCallback(
     (evt) => {
@@ -160,7 +187,7 @@ export default function MapaLotes({
       mapStyle={STYLE_URL}
       initialViewState={viewInicial}
       interactiveLayerIds={camadasInterativas}
-      onLoad={recarregar}
+      onLoad={aoCarregar}
       onMoveEnd={aoMover}
       onClick={aoClicar}
       cursor="pointer"

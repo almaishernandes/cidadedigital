@@ -31,6 +31,7 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
       setEndereco(r.logradouro || endereco);
       setBairro(r.bairro);
       setLocalidadeCep({ cidade: r.cidade, uf: r.uf });
+      setNumero(''); // número do lote anterior não vale pro endereço novo encontrado
     } catch (err) {
       setErro(err.message);
     } finally {

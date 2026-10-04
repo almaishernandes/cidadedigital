@@ -69,7 +69,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-2">
+      <div className="flex flex-1 flex-col items-center overflow-y-auto p-2">
         {erro && <p className="p-2 text-sm text-red-400">{erro}</p>}
         {!carregando && vitrines.length === 0 && !erro && (
           <p className="p-2 text-xs text-slate-500">
@@ -77,7 +77,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
           </p>
         )}
 
-        <div className="grid grid-cols-[repeat(10,36px)] grid-rows-[repeat(10,36px)] gap-1">
+        <div className="m-auto grid grid-cols-[repeat(10,36px)] grid-rows-[repeat(10,36px)] gap-1">
           {posicoes.map((pos) => {
             const v = porPosicao.get(pos);
             if (!v) {

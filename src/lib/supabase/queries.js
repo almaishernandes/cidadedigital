@@ -54,7 +54,7 @@ export async function buscarProdutos(estabelecimentoId, { pagina = 0, tamanho = 
   const ate = de + tamanho - 1;
   const { data, error, count } = await supabase
     .from('produtos_publicos')
-    .select('id, nome, descricao, preco, imagem_url', { count: 'exact' })
+    .select('id, nome, descricao, preco, imagem_url, tipo', { count: 'exact' })
     .eq('estabelecimento_id', estabelecimentoId)
     .order('nome')
     .range(de, ate);

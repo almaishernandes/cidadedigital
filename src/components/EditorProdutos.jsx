@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Plus, Trash2, Check } from 'lucide-react';
 import { listarProdutos, salvarProduto, removerProduto } from '../lib/supabase/gestao.js';
 
-const NOVO = { nome: '', descricao: '', preco: '', imagem_url: '', ativo: true };
+const NOVO = { nome: '', descricao: '', preco: '', imagem_url: '', tipo: 'produto', ativo: true };
 
 export default function EditorProdutos({ estabelecimentoId }) {
   const [itens, setItens] = useState([]);
@@ -23,6 +23,7 @@ export default function EditorProdutos({ estabelecimentoId }) {
         descricao: rascunho.descricao || null,
         preco: rascunho.preco === '' ? null : Number(rascunho.preco),
         imagem_url: rascunho.imagem_url || null,
+        tipo: rascunho.tipo,
         ativo: true,
       });
       setItens((l) => [...l, salvo].sort((a, b) => a.nome.localeCompare(b.nome)));
@@ -60,6 +61,14 @@ export default function EditorProdutos({ estabelecimentoId }) {
           value={rascunho.preco}
           onChange={(e) => setRascunho((r) => ({ ...r, preco: e.target.value }))}
         />
+        <select
+          className="rounded border px-2 py-1.5 text-sm"
+          value={rascunho.tipo}
+          onChange={(e) => setRascunho((r) => ({ ...r, tipo: e.target.value }))}
+        >
+          <option value="produto">Produto (P)</option>
+          <option value="servico">Serviço (S)</option>
+        </select>
         <input
           className="rounded border px-2 py-1.5 text-sm sm:col-span-2"
           placeholder="URL da imagem"
@@ -88,6 +97,14 @@ export default function EditorProdutos({ estabelecimentoId }) {
             {p.imagem_url && (
               <img src={p.imagem_url} alt="" className="h-10 w-10 rounded object-cover" />
             )}
+            <span
+              className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
+                p.tipo === 'servico' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'
+              }`}
+              title={p.tipo === 'servico' ? 'Serviço' : 'Produto'}
+            >
+              {p.tipo === 'servico' ? 'S' : 'P'}
+            </span>
             <div className="flex-1">
               <p className="font-medium">{p.nome}</p>
               {p.preco != null && (

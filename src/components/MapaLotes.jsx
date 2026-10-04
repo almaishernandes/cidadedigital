@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Map, { Source, Layer } from 'react-map-gl/maplibre';
 import maplibregl from 'maplibre-gl';
 import { buscarLotesGeoJSON } from '../lib/supabase/queries.js';
@@ -60,6 +60,38 @@ const camadaPinoNumero = {
   paint: { 'text-color': '#ffffff' },
 };
 
+// Camadas 'circle' só funcionam com geometria de ponto — por isso os pinos do
+// modo virtual usam uma versão com centróide de cada lote, não o polígono.
+function centroideBbox(geometry) {
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  const varrer = (coords, prof) => {
+    if (prof === 0) {
+      const [x, y] = coords;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    } else {
+      coords.forEach((c) => varrer(c, prof - 1));
+    }
+  };
+  const profundidade = geometry.type === 'MultiPolygon' ? 3 : 2;
+  varrer(geometry.coordinates, profundidade);
+  return [(minX + maxX) / 2, (minY + maxY) / 2];
+}
+
+function paraPontos(fc) {
+  return {
+    type: 'FeatureCollection',
+    features: fc.features.map((f) => ({
+      type: 'Feature',
+      id: f.id,
+      properties: f.properties,
+      geometry: { type: 'Point', coordinates: centroideBbox(f.geometry) },
+    })),
+  };
+}
+
 export default function MapaLotes({
   cidade,
   viewInicial,
@@ -72,6 +104,8 @@ export default function MapaLotes({
   const timer = useRef(null);
   const [dados, setDados] = useState(VAZIO);
   const [carregando, setCarregando] = useState(false);
+
+  const dadosPinos = useMemo(() => (modo === 'virtual' ? paraPontos(dados) : VAZIO), [dados, modo]);
 
   const recarregar = useCallback(async () => {
     const mapa = mapRef.current?.getMap();
@@ -139,23 +173,21 @@ export default function MapaLotes({
             : undefined,
       }}
     >
-      <Source id="lotes" type="geojson" data={dados}>
-        {modo === 'fisico' ? (
-          <>
-            <Layer {...camadaPreenchimento} />
-            <Layer {...camadaContorno} />
-            <Layer
-              {...camadaSelecionado}
-              filter={['==', ['get', 'lote_id'], loteSelecionado ?? '__none__']}
-            />
-          </>
-        ) : (
-          <>
-            <Layer {...camadaPinoBase} />
-            <Layer {...camadaPinoNumero} />
-          </>
-        )}
-      </Source>
+      {modo === 'fisico' ? (
+        <Source id="lotes" type="geojson" data={dados}>
+          <Layer {...camadaPreenchimento} />
+          <Layer {...camadaContorno} />
+          <Layer
+            {...camadaSelecionado}
+            filter={['==', ['get', 'lote_id'], loteSelecionado ?? '__none__']}
+          />
+        </Source>
+      ) : (
+        <Source id="lotes-pontos" type="geojson" data={dadosPinos}>
+          <Layer {...camadaPinoBase} />
+          <Layer {...camadaPinoNumero} />
+        </Source>
+      )}
       {carregando && (
         <div className="absolute left-3 top-3 rounded bg-white/90 px-2 py-1 text-xs shadow">
           Carregando lotes…

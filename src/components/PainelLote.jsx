@@ -62,9 +62,11 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
             <MapPin size={14} /> {lote.endereco}
             {lote.numero ? `, ${lote.numero}` : ''}
           </p>
-          <p className="flex items-center gap-1.5 text-sm text-slate-500">
-            <Ruler size={14} /> {Number(lote.area_m2).toLocaleString('pt-BR')} m²
-          </p>
+          {lote.area_m2 != null && (
+            <p className="flex items-center gap-1.5 text-sm text-slate-500">
+              <Ruler size={14} /> {Number(lote.area_m2).toLocaleString('pt-BR')} m²
+            </p>
+          )}
         </div>
         <button onClick={aoFechar} className="rounded p-1 hover:bg-slate-100" aria-label="Fechar">
           <X size={20} />

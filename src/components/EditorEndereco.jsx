@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Search, Check, Mail } from 'lucide-react';
+import { MapPin, Search, Check, Mail, Crosshair } from 'lucide-react';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
 import { atualizarEnderecoLote } from '../lib/supabase/gestao.js';
@@ -10,6 +10,8 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
   const [numero, setNumero] = useState(numeroInicial ?? '');
   const [bairro, setBairro] = useState('');
   const [localidadeCep, setLocalidadeCep] = useState(null); // { cidade, uf } vindos do CEP
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
 
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [buscandoGeo, setBuscandoGeo] = useState(false);
@@ -63,6 +65,22 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
     }
   }
 
+  function usarCoordenadas(e) {
+    e.preventDefault();
+    setErro(null);
+    const latN = Number(String(lat).replace(',', '.'));
+    const lngN = Number(String(lng).replace(',', '.'));
+    if (!Number.isFinite(latN) || !Number.isFinite(lngN) || latN === 0 || lngN === 0) {
+      setErro('Informe latitude e longitude válidas (ex.: -21.7969, -50.8778).');
+      return;
+    }
+    if (!endereco.trim()) {
+      setErro('Preencha a rua antes de confirmar pelas coordenadas.');
+      return;
+    }
+    setEncontrado({ lat: latN, lng: lngN, nomeExibicao: `Coordenadas informadas: ${latN}, ${lngN}` });
+  }
+
   async function confirmar() {
     setSalvando(true);
     setErro(null);
@@ -111,6 +129,32 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
             {localidadeCep ? ` — ${localidadeCep.cidade}/${localidadeCep.uf}` : ''}
           </span>
         )}
+      </form>
+
+      <form onSubmit={usarCoordenadas} className="flex flex-wrap items-end gap-2">
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-600">Latitude</span>
+          <input
+            className="w-32 rounded border px-2 py-1.5 text-sm"
+            placeholder="-21.7969"
+            value={lat}
+            onChange={(e) => setLat(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-600">Longitude</span>
+          <input
+            className="w-32 rounded border px-2 py-1.5 text-sm"
+            placeholder="-50.8778"
+            value={lng}
+            onChange={(e) => setLng(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
+        <button className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm">
+          <Crosshair size={14} /> Usar coordenadas
+        </button>
       </form>
 
       <form onSubmit={localizarNoMapa} className="flex flex-wrap gap-2">

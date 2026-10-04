@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPinned, Map as MapIcon, Radar, PanelRightClose, PanelRightOpen } from 'lucide-react';
+import { MapPinned, Map as MapIcon, Radar, PanelRightClose, PanelRightOpen, ChevronRight } from 'lucide-react';
 import MapaLotes from '../components/MapaLotes.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
@@ -90,6 +90,14 @@ export default function MapaPublico() {
 
       {painelAberto && (
         <div className="relative h-64 shrink-0 overflow-hidden border-t bg-white sm:h-full sm:w-96 sm:border-l sm:border-t-0">
+          <button
+            onClick={() => setPainelAberto(false)}
+            title="Ocultar painel (ver mapa inteiro)"
+            className="absolute -left-3 top-1/2 z-30 hidden -translate-y-1/2 rounded-full border bg-white p-1 text-slate-500 shadow hover:bg-slate-100 sm:block"
+          >
+            <ChevronRight size={16} />
+          </button>
+
           {/* Tela 1: lista — desliza pra fora (esquerda) quando um espaço é selecionado */}
           <div
             className={`absolute inset-0 transition-transform duration-300 ease-out ${

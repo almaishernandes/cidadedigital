@@ -36,6 +36,24 @@ const camadaSelecionado = {
 
 // Modo virtual: só pinos numerados das licenças ativas, com identidade própria.
 const FILTRO_OCUPADO = ['==', ['get', 'status_vitrine'], 'ocupado'];
+
+// Número da licença sobre o lote, igual ao pino do modo virtual (symbol
+// funciona direto em polígono, não precisa do centróide manual).
+const camadaNumeroFisico = {
+  id: 'lotes-numero',
+  type: 'symbol',
+  filter: FILTRO_OCUPADO,
+  layout: {
+    'text-field': ['to-string', ['get', 'numero_licenca']],
+    'text-size': 12,
+    'text-font': ['Noto Sans Bold'],
+  },
+  paint: {
+    'text-color': '#ffffff',
+    'text-halo-color': '#1e3a8a',
+    'text-halo-width': 1.2,
+  },
+};
 const camadaPinoBase = {
   id: 'lotes-pino-base',
   type: 'circle',
@@ -208,6 +226,7 @@ export default function MapaLotes({
             {...camadaSelecionado}
             filter={['==', ['get', 'lote_id'], loteSelecionado ?? '__none__']}
           />
+          <Layer {...camadaNumeroFisico} />
         </Source>
       ) : (
         <Source key="lotes-pontos" id="lotes-pontos" type="geojson" data={dadosPinos}>

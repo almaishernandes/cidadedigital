@@ -6,3 +6,6 @@ deploy
 *.log
 .DS_Store
 data/lotes/*.geojson
+
+.vercel
+.env*

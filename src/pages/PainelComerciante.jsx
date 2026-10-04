@@ -8,6 +8,7 @@ import {
 } from '../lib/supabase/gestao.js';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
 import EditorProdutos from '../components/EditorProdutos.jsx';
+import EditorEndereco from '../components/EditorEndereco.jsx';
 
 const ROTULO_STATUS = {
   ativa: { txt: 'Ativa', cls: 'bg-green-100 text-green-700', Icone: CheckCircle2 },
@@ -161,6 +162,14 @@ export default function PainelComerciante() {
                   </span>
                 )}
               </div>
+
+              <EditorEndereco
+                loteId={sel.lote.id}
+                cidade={sel.lote.cidade}
+                enderecoInicial={sel.lote.endereco}
+                numeroInicial={sel.lote.numero}
+                aoSalvar={recarregar}
+              />
 
               <div>
                 <h2 className="mb-3 font-medium">Dados da vitrine</h2>

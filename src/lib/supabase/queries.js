@@ -21,6 +21,13 @@ export async function buscarLotesGeoJSON({ cidade, oeste, sul, leste, norte }) {
   return data ?? { type: 'FeatureCollection', features: [] };
 }
 
+/** Lista de vitrines ativas de uma cidade, para o painel do mapa virtual. */
+export async function buscarVitrinesCidade(cidade) {
+  const { data, error } = await supabase.rpc('vitrines_cidade', { p_cidade: cidade });
+  if (error) throw error;
+  return data ?? [];
+}
+
 /** Detalhe da vitrine pública de um lote (apenas licença ativa). */
 export async function buscarEstabelecimentoPorLote(loteId) {
   const { data, error } = await supabase

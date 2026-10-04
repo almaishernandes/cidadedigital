@@ -7,7 +7,7 @@ import {
   linkWhatsApp,
 } from '../lib/supabase/queries.js';
 
-export default function PainelLote({ lote, aoFechar }) {
+export default function PainelLote({ lote, aoFechar, inline = false }) {
   const [estab, setEstab] = useState(null);
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(false);
@@ -46,8 +46,12 @@ export default function PainelLote({ lote, aoFechar }) {
         ? 'oportunidade'
         : 'residencial';
 
+  const classes = inline
+    ? 'flex h-full w-full flex-col overflow-y-auto bg-white'
+    : 'absolute inset-x-0 bottom-0 z-20 flex max-h-[75%] flex-col overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-full sm:max-w-sm sm:rounded-none';
+
   return (
-    <aside className="absolute inset-x-0 bottom-0 z-20 flex max-h-[75%] flex-col overflow-y-auto rounded-t-2xl bg-white shadow-2xl sm:inset-x-auto sm:right-0 sm:top-0 sm:max-h-none sm:h-full sm:w-full sm:max-w-sm sm:rounded-none">
+    <aside className={classes}>
       <header className="flex items-start justify-between gap-3 border-b p-4">
         <div className="space-y-2">
           <StatusBadge status={status} />

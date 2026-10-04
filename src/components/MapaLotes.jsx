@@ -34,7 +34,40 @@ const camadaSelecionado = {
   filter: ['==', ['get', 'lote_id'], '__none__'],
 };
 
-export default function MapaLotes({ cidade, viewInicial, loteSelecionado, onSelecionarLote }) {
+// Modo virtual: só pinos numerados das licenças ativas, com identidade própria.
+const FILTRO_OCUPADO = ['==', ['get', 'status_vitrine'], 'ocupado'];
+const camadaPinoBase = {
+  id: 'lotes-pino-base',
+  type: 'circle',
+  filter: FILTRO_OCUPADO,
+  paint: {
+    'circle-radius': 12,
+    'circle-color': '#4f46e5',
+    'circle-stroke-width': 2,
+    'circle-stroke-color': '#ffffff',
+  },
+};
+const camadaPinoNumero = {
+  id: 'lotes-pino-numero',
+  type: 'symbol',
+  filter: FILTRO_OCUPADO,
+  layout: {
+    'text-field': ['to-string', ['get', 'numero_licenca']],
+    'text-size': 11,
+    'text-font': ['Noto Sans Bold'],
+    'text-allow-overlap': true,
+  },
+  paint: { 'text-color': '#ffffff' },
+};
+
+export default function MapaLotes({
+  cidade,
+  viewInicial,
+  loteSelecionado,
+  onSelecionarLote,
+  modo = 'fisico',
+  voarPara,
+}) {
   const mapRef = useRef(null);
   const timer = useRef(null);
   const [dados, setDados] = useState(VAZIO);
@@ -68,6 +101,13 @@ export default function MapaLotes({ cidade, viewInicial, loteSelecionado, onSele
 
   useEffect(() => () => clearTimeout(timer.current), []);
 
+  useEffect(() => {
+    if (!voarPara) return;
+    const mapa = mapRef.current?.getMap();
+    if (!mapa) return;
+    mapa.flyTo({ center: [voarPara.longitude, voarPara.latitude], zoom: 18, speed: 1.2 });
+  }, [voarPara]);
+
   const aoClicar = useCallback(
     (evt) => {
       const f = evt.features?.[0];
@@ -76,26 +116,45 @@ export default function MapaLotes({ cidade, viewInicial, loteSelecionado, onSele
     [onSelecionarLote]
   );
 
+  const camadasInterativas =
+    modo === 'virtual' ? ['lotes-pino-base'] : ['lotes-fill'];
+
   return (
     <Map
       ref={mapRef}
       mapLib={maplibregl}
       mapStyle={STYLE_URL}
       initialViewState={viewInicial}
-      interactiveLayerIds={['lotes-fill']}
+      interactiveLayerIds={camadasInterativas}
       onLoad={recarregar}
       onMoveEnd={aoMover}
       onClick={aoClicar}
       cursor="pointer"
-      style={{ position: 'absolute', inset: 0 }}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        filter:
+          modo === 'virtual'
+            ? 'grayscale(0.55) brightness(1.08) sepia(0.15) hue-rotate(190deg) saturate(1.3)'
+            : undefined,
+      }}
     >
       <Source id="lotes" type="geojson" data={dados}>
-        <Layer {...camadaPreenchimento} />
-        <Layer {...camadaContorno} />
-        <Layer
-          {...camadaSelecionado}
-          filter={['==', ['get', 'lote_id'], loteSelecionado ?? '__none__']}
-        />
+        {modo === 'fisico' ? (
+          <>
+            <Layer {...camadaPreenchimento} />
+            <Layer {...camadaContorno} />
+            <Layer
+              {...camadaSelecionado}
+              filter={['==', ['get', 'lote_id'], loteSelecionado ?? '__none__']}
+            />
+          </>
+        ) : (
+          <>
+            <Layer {...camadaPinoBase} />
+            <Layer {...camadaPinoNumero} />
+          </>
+        )}
       </Source>
       {carregando && (
         <div className="absolute left-3 top-3 rounded bg-white/90 px-2 py-1 text-xs shadow">

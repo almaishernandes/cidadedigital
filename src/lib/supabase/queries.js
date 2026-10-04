@@ -28,6 +28,13 @@ export async function buscarVitrinesCidade(cidade) {
   return data ?? [];
 }
 
+/** Lista completa de lotes (vagos + ativos) de uma cidade, para o painel do mapa físico. */
+export async function buscarLotesCidade(cidade) {
+  const { data, error } = await supabase.rpc('lotes_cidade', { p_cidade: cidade });
+  if (error) throw error;
+  return data ?? [];
+}
+
 /** Detalhe da vitrine pública de um lote (apenas licença ativa). */
 export async function buscarEstabelecimentoPorLote(loteId) {
   const { data, error } = await supabase

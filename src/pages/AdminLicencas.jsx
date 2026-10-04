@@ -80,6 +80,11 @@ export default function AdminLicencas() {
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex-1">
                 <p className="font-medium">
+                  {l.numero_licenca != null && (
+                    <span className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 align-middle text-xs font-semibold text-white">
+                      {l.numero_licenca}
+                    </span>
+                  )}
                   {l.lote?.endereco}
                   {l.lote?.numero ? `, ${l.lote.numero}` : ''} — {l.lote?.cidade}
                 </p>

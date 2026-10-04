@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { MapPinned, Map as MapIcon, Radar } from 'lucide-react';
+import { MapPinned, Map as MapIcon, Radar, PanelRightClose, PanelRightOpen } from 'lucide-react';
 import MapaLotes from '../components/MapaLotes.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
-import { STATUS_MAPA } from '../components/StatusBadge.jsx';
+import PainelLotesFisico from '../components/PainelLotesFisico.jsx';
 
 const CIDADES = {
   'Osvaldo Cruz': { longitude: -50.8778, latitude: -21.7969, zoom: 15 },
@@ -15,29 +15,33 @@ export default function MapaPublico() {
   const [lote, setLote] = useState(null);
   const [modo, setModo] = useState('fisico'); // 'fisico' | 'virtual'
   const [voarPara, setVoarPara] = useState(null);
+  const [painelAberto, setPainelAberto] = useState(true);
+
+  function aoSelecionarNoMapa(props) {
+    setLote(props);
+    if (props) setPainelAberto(true);
+  }
 
   function aoSelecionarNaLista(v) {
     setLote({
       lote_id: v.lote_id,
       endereco: v.endereco,
       numero: v.numero,
-      area_m2: null,
-      status_vitrine: 'ocupado',
+      area_m2: v.area_m2 ?? null,
+      status_vitrine: v.status_vitrine ?? 'ocupado',
     });
     setVoarPara({ latitude: v.latitude, longitude: v.longitude, token: Date.now() });
   }
 
   return (
-    <div
-      className={`relative flex h-full w-full ${modo === 'virtual' ? 'flex-col sm:flex-row' : ''}`}
-    >
+    <div className={`relative flex h-full w-full ${painelAberto ? 'flex-col sm:flex-row' : ''}`}>
       <div className="relative min-h-0 flex-1">
         <MapaLotes
           key={cidade}
           cidade={cidade}
           viewInicial={CIDADES[cidade]}
           loteSelecionado={lote?.lote_id ?? null}
-          onSelecionarLote={setLote}
+          onSelecionarLote={aoSelecionarNoMapa}
           modo={modo}
           voarPara={voarPara}
         />
@@ -74,32 +78,24 @@ export default function MapaPublico() {
               <Radar size={13} /> Virtual
             </button>
           </div>
+          <button
+            onClick={() => setPainelAberto((v) => !v)}
+            className="rounded-full border p-1.5 text-slate-600 hover:bg-slate-50"
+            title={painelAberto ? 'Ocultar painel' : 'Mostrar painel'}
+          >
+            {painelAberto ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
+          </button>
         </header>
-
-        {modo === 'fisico' && (
-          <div className="absolute left-3 top-16 z-10 space-y-1 rounded-lg bg-white/95 p-2.5 text-xs shadow sm:bottom-3 sm:top-auto">
-            {Object.entries(STATUS_MAPA).map(([k, v]) => (
-              <div key={k} className="flex items-center gap-2">
-                <span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: v.cor }} />
-                {v.rotulo}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {modo === 'fisico' && <PainelLote lote={lote} aoFechar={() => setLote(null)} />}
       </div>
 
-      {modo === 'virtual' && (
+      {painelAberto && (
         <div className="h-64 shrink-0 border-t bg-white sm:h-full sm:w-96 sm:border-l sm:border-t-0">
           {lote ? (
             <PainelLote lote={lote} aoFechar={() => setLote(null)} inline />
+          ) : modo === 'virtual' ? (
+            <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
           ) : (
-            <PainelVitrines
-              cidade={cidade}
-              loteSelecionado={lote?.lote_id}
-              aoSelecionar={aoSelecionarNaLista}
-            />
+            <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
           )}
         </div>
       )}

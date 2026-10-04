@@ -138,6 +138,11 @@ export default function PainelComerciante() {
                   }`}
                 >
                   <span className="block font-medium">
+                    {l.numero_licenca != null && (
+                      <span className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 align-middle text-xs font-semibold text-white">
+                        {l.numero_licenca}
+                      </span>
+                    )}
                     {l.estabelecimento?.nome_fantasia ?? l.lote?.endereco ?? 'Lote'}
                   </span>
                   <span

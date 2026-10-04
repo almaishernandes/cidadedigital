@@ -7,7 +7,7 @@ export async function minhasLicencas() {
   const { data, error } = await supabase
     .from('licencas')
     .select(
-      `id, status, data_inicio, data_fim, observacao,
+      `id, status, numero_licenca, data_inicio, data_fim, observacao,
        lote:lotes ( id, cidade, endereco, numero, area_m2, status_ocupacao ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
@@ -98,7 +98,7 @@ export async function licencasPorStatus(status = 'pendente') {
   const { data, error } = await supabase
     .from('licencas')
     .select(
-      `id, status, data_inicio, data_fim, observacao, criado_em,
+      `id, status, numero_licenca, data_inicio, data_fim, observacao, criado_em,
        lote:lotes ( id, cidade, endereco, numero ),
        perfil:perfis ( id, nome, email, telefone )`
     )

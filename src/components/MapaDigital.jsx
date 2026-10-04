@@ -59,8 +59,10 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
               return (
                 <div
                   key={pos}
-                  className="aspect-square rounded-sm border border-dashed border-slate-700/70"
-                />
+                  className="flex aspect-square items-center justify-center rounded-sm border border-dashed border-slate-700/70 text-[7px] font-medium text-slate-700 sm:text-[9px]"
+                >
+                  {pos}
+                </div>
               );
             }
             const selecionado = loteSelecionado === v.lote_id;
@@ -69,7 +71,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
                 key={pos}
                 onClick={() => aoSelecionar?.(v)}
                 title={v.nome_fantasia}
-                className={`flex aspect-square items-center justify-center rounded-sm text-[8px] font-semibold transition-colors sm:text-[10px] ${
+                className={`flex aspect-square items-center justify-center rounded-sm text-xs font-black transition-colors sm:text-base ${
                   selecionado
                     ? 'bg-amber-400 text-slate-900 ring-2 ring-amber-200'
                     : 'bg-indigo-500 text-white hover:bg-indigo-400'

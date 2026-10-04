@@ -43,7 +43,7 @@ const camadaPinoBase = {
   type: 'circle',
   filter: FILTRO_OCUPADO,
   paint: {
-    'circle-radius': 12,
+    'circle-radius': 16,
     'circle-color': '#4f46e5',
     'circle-stroke-width': 2,
     'circle-stroke-color': '#ffffff',
@@ -55,9 +55,10 @@ const camadaPinoNumero = {
   filter: FILTRO_OCUPADO,
   layout: {
     'text-field': ['to-string', ['get', 'numero_licenca']],
-    'text-size': 11,
+    'text-size': 16,
     'text-font': ['Noto Sans Bold'],
     'text-allow-overlap': true,
+    'text-ignore-placement': true,
   },
   paint: { 'text-color': '#ffffff' },
 };

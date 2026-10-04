@@ -52,7 +52,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
           </p>
         )}
 
-        <div className="grid grid-cols-8 gap-1 sm:grid-cols-10 md:grid-cols-12 lg:grid-cols-16">
+        <div className="grid grid-cols-12 gap-0.5 sm:grid-cols-[repeat(16,minmax(0,1fr))] md:grid-cols-[repeat(20,minmax(0,1fr))] lg:grid-cols-[repeat(24,minmax(0,1fr))]">
           {posicoes.map((pos) => {
             const v = porPosicao.get(pos);
             if (!v) {
@@ -69,7 +69,7 @@ export default function MapaDigital({ cidade, loteSelecionado, aoSelecionar }) {
                 key={pos}
                 onClick={() => aoSelecionar?.(v)}
                 title={v.nome_fantasia}
-                className={`flex aspect-square items-center justify-center rounded-sm text-[10px] font-semibold transition-colors sm:text-xs ${
+                className={`flex aspect-square items-center justify-center rounded-sm text-[8px] font-semibold transition-colors sm:text-[10px] ${
                   selecionado
                     ? 'bg-amber-400 text-slate-900 ring-2 ring-amber-200'
                     : 'bg-indigo-500 text-white hover:bg-indigo-400'

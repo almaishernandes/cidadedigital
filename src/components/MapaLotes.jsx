@@ -34,26 +34,10 @@ const camadaSelecionado = {
   filter: ['==', ['get', 'lote_id'], '__none__'],
 };
 
-// Modo virtual: só pinos numerados das licenças ativas, com identidade própria.
+// Pino numerado das licenças ativas — usado no Físico (sobre o lote) e no
+// Virtual (única marcação no mapa), com a mesma identidade visual.
 const FILTRO_OCUPADO = ['==', ['get', 'status_vitrine'], 'ocupado'];
 
-// Número da licença sobre o lote, igual ao pino do modo virtual (symbol
-// funciona direto em polígono, não precisa do centróide manual).
-const camadaNumeroFisico = {
-  id: 'lotes-numero',
-  type: 'symbol',
-  filter: FILTRO_OCUPADO,
-  layout: {
-    'text-field': ['to-string', ['get', 'numero_licenca']],
-    'text-size': 12,
-    'text-font': ['Noto Sans Bold'],
-  },
-  paint: {
-    'text-color': '#ffffff',
-    'text-halo-color': '#1e3a8a',
-    'text-halo-width': 1.2,
-  },
-};
 const camadaPinoBase = {
   id: 'lotes-pino-base',
   type: 'circle',
@@ -136,7 +120,7 @@ export default function MapaLotes({
   const [dados, setDados] = useState(VAZIO);
   const [carregando, setCarregando] = useState(false);
 
-  const dadosPinos = useMemo(() => (modo === 'virtual' ? paraPontos(dados) : VAZIO), [dados, modo]);
+  const dadosPinos = useMemo(() => paraPontos(dados), [dados]);
 
   const recarregar = useCallback(async () => {
     const mapa = mapRef.current?.getMap();
@@ -196,7 +180,7 @@ export default function MapaLotes({
   );
 
   const camadasInterativas =
-    modo === 'virtual' ? ['lotes-pino-base'] : ['lotes-fill'];
+    modo === 'virtual' ? ['lotes-pino-base'] : ['lotes-fill', 'lotes-pino-base'];
 
   return (
     <Map
@@ -218,7 +202,7 @@ export default function MapaLotes({
             : undefined,
       }}
     >
-      {modo === 'fisico' ? (
+      {modo === 'fisico' && (
         <Source key="lotes" id="lotes" type="geojson" data={dados}>
           <Layer {...camadaPreenchimento} />
           <Layer {...camadaContorno} />
@@ -226,14 +210,12 @@ export default function MapaLotes({
             {...camadaSelecionado}
             filter={['==', ['get', 'lote_id'], loteSelecionado ?? '__none__']}
           />
-          <Layer {...camadaNumeroFisico} />
-        </Source>
-      ) : (
-        <Source key="lotes-pontos" id="lotes-pontos" type="geojson" data={dadosPinos}>
-          <Layer {...camadaPinoBase} />
-          <Layer {...camadaPinoNumero} />
         </Source>
       )}
+      <Source key="lotes-pontos" id="lotes-pontos" type="geojson" data={dadosPinos}>
+        <Layer {...camadaPinoBase} />
+        <Layer {...camadaPinoNumero} />
+      </Source>
       {carregando && (
         <div className="absolute left-3 top-3 rounded bg-white/90 px-2 py-1 text-xs shadow">
           Carregando lotes…

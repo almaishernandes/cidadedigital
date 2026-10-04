@@ -46,6 +46,18 @@ export async function atualizarEnderecoLote(loteId, { endereco, numero, lat, lng
   if (error) throw error;
 }
 
+export async function criarLote(cidade, { endereco, numero, lat, lng }) {
+  const { data, error } = await supabase.rpc('criar_lote', {
+    p_cidade: cidade,
+    p_endereco: endereco,
+    p_numero: numero || null,
+    p_lat: lat,
+    p_lng: lng,
+  });
+  if (error) throw error;
+  return data; // uuid do novo lote
+}
+
 export async function solicitarLicenca(loteId) {
   const { data: u } = await supabase.auth.getUser();
   const { data, error } = await supabase

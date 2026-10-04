@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Store, Search, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Store, Search, Mail, Crosshair, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
-import {
-  minhasLicencas,
-  buscarLotesParaLicenca,
-  solicitarLicenca,
-} from '../lib/supabase/gestao.js';
+import { minhasLicencas, criarLote, solicitarLicenca } from '../lib/supabase/gestao.js';
+import { buscarCep, formatarCep } from '../lib/cep.js';
+import { geocodarComFallback } from '../lib/geocode.js';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
 import EditorProdutos from '../components/EditorProdutos.jsx';
 import EditorEndereco from '../components/EditorEndereco.jsx';
@@ -18,24 +16,116 @@ const ROTULO_STATUS = {
 
 function Solicitar({ aoSolicitar }) {
   const [cidade, setCidade] = useState('Osvaldo Cruz');
-  const [termo, setTermo] = useState('');
-  const [lotes, setLotes] = useState([]);
+  const [cep, setCep] = useState('');
+  const [endereco, setEndereco] = useState('');
+  const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [encontrado, setEncontrado] = useState(null);
+  const [buscandoCep, setBuscandoCep] = useState(false);
+  const [buscandoGeo, setBuscandoGeo] = useState(false);
+  const [enviando, setEnviando] = useState(false);
   const [erro, setErro] = useState(null);
 
-  async function procurar(e) {
+  async function buscarPorCep(e) {
     e.preventDefault();
     setErro(null);
+    setEncontrado(null);
+    setBuscandoCep(true);
     try {
-      setLotes(await buscarLotesParaLicenca(cidade, termo));
+      const r = await buscarCep(cep);
+      if (!r) {
+        setErro('CEP não encontrado na base dos Correios.');
+        return;
+      }
+      setEndereco(r.logradouro || endereco);
+      setBairro(r.bairro);
+      if (r.cidade) setCidade(r.cidade);
+      setNumero('');
     } catch (err) {
       setErro(err.message);
+    } finally {
+      setBuscandoCep(false);
+    }
+  }
+
+  async function localizarNoMapa(e) {
+    e.preventDefault();
+    setErro(null);
+    setEncontrado(null);
+    setBuscandoGeo(true);
+    try {
+      const r = await geocodarComFallback({ endereco, numero, bairro, cidade, uf: 'SP' });
+      if (!r) setErro('Endereço não encontrado no mapa. Confira a rua e o número.');
+      else setEncontrado(r);
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setBuscandoGeo(false);
+    }
+  }
+
+  function usarCoordenadas(e) {
+    e.preventDefault();
+    setErro(null);
+    const latN = Number(String(lat).replace(',', '.'));
+    const lngN = Number(String(lng).replace(',', '.'));
+    if (!Number.isFinite(latN) || !Number.isFinite(lngN) || latN === 0 || lngN === 0) {
+      setErro('Informe latitude e longitude válidas.');
+      return;
+    }
+    if (!endereco.trim()) {
+      setErro('Preencha a rua antes de confirmar pelas coordenadas.');
+      return;
+    }
+    setEncontrado({ lat: latN, lng: lngN, nomeExibicao: `Coordenadas informadas: ${latN}, ${lngN}` });
+  }
+
+  async function confirmarSolicitacao() {
+    setEnviando(true);
+    setErro(null);
+    try {
+      const loteId = await criarLote(cidade, {
+        endereco,
+        numero,
+        lat: encontrado.lat,
+        lng: encontrado.lng,
+      });
+      await aoSolicitar(loteId);
+      setEndereco('');
+      setNumero('');
+      setBairro('');
+      setCep('');
+      setEncontrado(null);
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setEnviando(false);
     }
   }
 
   return (
-    <div className="rounded-lg border p-4">
-      <h3 className="mb-3 font-medium">Solicitar licença para um lote</h3>
-      <form onSubmit={procurar} className="flex flex-wrap gap-2">
+    <div className="space-y-3 rounded-lg border p-4">
+      <h3 className="font-medium">Solicitar licença para um endereço</h3>
+
+      <form onSubmit={buscarPorCep} className="flex flex-wrap items-end gap-2">
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-600">CEP (opcional, preenche automático)</span>
+          <input
+            className="w-32 rounded border px-2 py-1.5 text-sm"
+            placeholder="00000-000"
+            value={formatarCep(cep)}
+            onChange={(e) => setCep(e.target.value)}
+            maxLength={9}
+          />
+        </label>
+        <button
+          disabled={buscandoCep || cep.replace(/\D/g, '').length !== 8}
+          className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm disabled:opacity-50"
+        >
+          <Mail size={14} /> {buscandoCep ? 'Buscando…' : 'Buscar CEP'}
+        </button>
         <select
           value={cidade}
           onChange={(e) => setCidade(e.target.value)}
@@ -44,36 +134,70 @@ function Solicitar({ aoSolicitar }) {
           <option>Osvaldo Cruz</option>
           <option>Parapuã</option>
         </select>
+      </form>
+
+      <form onSubmit={localizarNoMapa} className="flex flex-wrap gap-2">
         <input
-          className="flex-1 rounded border px-3 py-1.5 text-sm"
-          placeholder="Buscar por endereço"
-          value={termo}
-          onChange={(e) => setTermo(e.target.value)}
+          className="flex-1 rounded border px-2 py-1.5 text-sm"
+          placeholder="Rua, avenida..."
+          value={endereco}
+          onChange={(e) => setEndereco(e.target.value)}
+          required
         />
-        <button className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white">
-          <Search size={14} /> Buscar
+        <input
+          className="w-24 rounded border px-2 py-1.5 text-sm"
+          placeholder="Nº"
+          value={numero}
+          onChange={(e) => setNumero(e.target.value)}
+        />
+        <button
+          disabled={buscandoGeo}
+          className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+        >
+          <Search size={14} /> {buscandoGeo ? 'Localizando…' : 'Localizar no mapa'}
         </button>
       </form>
-      {erro && <p className="mt-2 text-sm text-red-600">{erro}</p>}
-      <ul className="mt-3 divide-y">
-        {lotes.map((l) => (
-          <li key={l.id} className="flex items-center justify-between gap-3 py-2 text-sm">
-            <span>
-              {l.endereco}
-              {l.numero ? `, ${l.numero}` : ''} · {Number(l.area_m2).toLocaleString('pt-BR')} m²
-              <span className="ml-2 rounded bg-slate-100 px-1.5 py-0.5 text-xs">
-                {l.status_ocupacao}
-              </span>
-            </span>
-            <button
-              onClick={() => aoSolicitar(l.id)}
-              className="rounded border px-2 py-1 text-xs hover:bg-slate-50"
-            >
-              Solicitar
-            </button>
-          </li>
-        ))}
-      </ul>
+
+      <form onSubmit={usarCoordenadas} className="flex flex-wrap items-end gap-2">
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-600">Latitude</span>
+          <input
+            className="w-28 rounded border px-2 py-1.5 text-sm"
+            placeholder="-21.7969"
+            value={lat}
+            onChange={(e) => setLat(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
+        <label className="text-sm">
+          <span className="mb-1 block text-slate-600">Longitude</span>
+          <input
+            className="w-28 rounded border px-2 py-1.5 text-sm"
+            placeholder="-50.8778"
+            value={lng}
+            onChange={(e) => setLng(e.target.value)}
+            inputMode="decimal"
+          />
+        </label>
+        <button className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm">
+          <Crosshair size={14} /> Usar coordenadas
+        </button>
+      </form>
+
+      {erro && <p className="text-sm text-red-600">{erro}</p>}
+
+      {encontrado && (
+        <div className="flex flex-wrap items-center gap-2 rounded bg-green-50 p-2 text-sm">
+          <span className="flex-1 text-green-800">Encontrado: {encontrado.nomeExibicao}</span>
+          <button
+            onClick={confirmarSolicitacao}
+            disabled={enviando}
+            className="inline-flex items-center gap-1 rounded bg-green-600 px-3 py-1.5 text-white disabled:opacity-50"
+          >
+            {enviando ? 'Enviando…' : 'Confirmar e solicitar licença'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

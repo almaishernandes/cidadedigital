@@ -40,7 +40,7 @@ export async function buscarEstabelecimentoPorLote(loteId) {
   const { data, error } = await supabase
     .from('estabelecimentos_publicos')
     .select(
-      'id, nome_fantasia, categoria, descricao, telefone_whatsapp, instagram_url, website_url, logo_url, lote_id'
+      'id, nome_fantasia, categoria, descricao, telefone_whatsapp, instagram_url, website_url, logo_url, lote_id, numero_licenca'
     )
     .eq('lote_id', loteId)
     .maybeSingle();

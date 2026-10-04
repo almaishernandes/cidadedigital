@@ -29,6 +29,7 @@ export default function MapaPublico() {
       numero: v.numero,
       area_m2: v.area_m2 ?? null,
       status_vitrine: v.status_vitrine ?? 'ocupado',
+      numero_licenca: v.numero_licenca ?? null,
     });
     setVoarPara({ latitude: v.latitude, longitude: v.longitude, token: Date.now() });
   }

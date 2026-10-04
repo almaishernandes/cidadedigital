@@ -174,7 +174,7 @@ export default function MapaLotes({
       }}
     >
       {modo === 'fisico' ? (
-        <Source id="lotes" type="geojson" data={dados}>
+        <Source key="lotes" id="lotes" type="geojson" data={dados}>
           <Layer {...camadaPreenchimento} />
           <Layer {...camadaContorno} />
           <Layer
@@ -183,7 +183,7 @@ export default function MapaLotes({
           />
         </Source>
       ) : (
-        <Source id="lotes-pontos" type="geojson" data={dadosPinos}>
+        <Source key="lotes-pontos" id="lotes-pontos" type="geojson" data={dadosPinos}>
           <Layer {...camadaPinoBase} />
           <Layer {...camadaPinoNumero} />
         </Source>

@@ -10,7 +10,7 @@ export default function Layout() {
   const nav = useNavigate();
 
   return (
-    <div className="flex min-h-full flex-col">
+    <div className="flex h-full flex-col">
       <header className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b bg-white px-3 py-2 sm:px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold">
           <MapPinned size={18} className="text-blue-600" />

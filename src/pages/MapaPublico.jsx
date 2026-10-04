@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   MapPinned,
   Map as MapIcon,
@@ -7,6 +7,7 @@ import {
   PanelRightClose,
   PanelRightOpen,
   ChevronRight,
+  GripVertical,
 } from 'lucide-react';
 import MapaLotes from '../components/MapaLotes.jsx';
 import MapaDigital from '../components/MapaDigital.jsx';
@@ -31,6 +32,33 @@ export default function MapaPublico() {
   const [modo, setModo] = useState('fisico'); // 'fisico' | 'virtual' | 'digital'
   const [voarPara, setVoarPara] = useState(null);
   const [painelAberto, setPainelAberto] = useState(true);
+  const [posHeader, setPosHeader] = useState(null); // null = posição padrão (centralizado)
+  const areaRef = useRef(null);
+  const arrastando = useRef(false);
+  const offsetArraste = useRef({ x: 0, y: 0 });
+
+  function iniciarArraste(e) {
+    arrastando.current = true;
+    const header = e.currentTarget.parentElement.getBoundingClientRect();
+    offsetArraste.current = { x: e.clientX - header.left, y: e.clientY - header.top };
+    const mover = (ev) => {
+      if (!arrastando.current) return;
+      const area2 = areaRef.current.getBoundingClientRect();
+      const x = ev.clientX - area2.left - offsetArraste.current.x;
+      const y = ev.clientY - area2.top - offsetArraste.current.y;
+      setPosHeader({
+        x: Math.min(Math.max(0, x), area2.width - header.width),
+        y: Math.min(Math.max(0, y), area2.height - header.height),
+      });
+    };
+    const soltar = () => {
+      arrastando.current = false;
+      window.removeEventListener('pointermove', mover);
+      window.removeEventListener('pointerup', soltar);
+    };
+    window.addEventListener('pointermove', mover);
+    window.addEventListener('pointerup', soltar);
+  }
 
   function aoSelecionarNoMapa(props) {
     setLote(props);
@@ -53,7 +81,7 @@ export default function MapaPublico() {
 
   return (
     <div className={`relative flex h-full w-full ${painelAberto ? 'flex-col sm:flex-row' : ''}`}>
-      <div className="relative min-h-0 flex-1">
+      <div ref={areaRef} className="relative min-h-0 flex-1">
         {modo === 'digital' ? (
           <MapaDigital cidade={cidade} loteSelecionado={lote?.lote_id ?? null} aoSelecionar={aoSelecionarNaLista} />
         ) : (
@@ -68,7 +96,19 @@ export default function MapaPublico() {
           />
         )}
 
-        <header className="absolute left-1/2 top-3 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 shadow sm:gap-3 sm:px-4 sm:py-2">
+        <header
+          className={`absolute z-10 flex items-center gap-2 rounded-full bg-white/95 px-3 py-1.5 shadow sm:gap-3 sm:px-4 sm:py-2 ${
+            posHeader ? '' : 'left-1/2 top-3 -translate-x-1/2'
+          }`}
+          style={posHeader ? { left: posHeader.x, top: posHeader.y } : undefined}
+        >
+          <span
+            onPointerDown={iniciarArraste}
+            className="cursor-grab touch-none text-slate-400 hover:text-slate-600 active:cursor-grabbing"
+            title="Arrastar"
+          >
+            <GripVertical size={14} />
+          </span>
           <MapPinned size={18} className="hidden text-blue-600 sm:block" />
           <select
             value={cidade}

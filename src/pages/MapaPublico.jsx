@@ -89,14 +89,28 @@ export default function MapaPublico() {
       </div>
 
       {painelAberto && (
-        <div className="h-64 shrink-0 border-t bg-white sm:h-full sm:w-96 sm:border-l sm:border-t-0">
-          {lote ? (
+        <div className="relative h-64 shrink-0 overflow-hidden border-t bg-white sm:h-full sm:w-96 sm:border-l sm:border-t-0">
+          {/* Tela 1: lista — desliza pra fora (esquerda) quando um espaço é selecionado */}
+          <div
+            className={`absolute inset-0 transition-transform duration-300 ease-out ${
+              lote ? '-translate-x-full' : 'translate-x-0'
+            }`}
+          >
+            {modo === 'virtual' ? (
+              <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+            ) : (
+              <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+            )}
+          </div>
+
+          {/* Tela 2: detalhes — entra deslizando da direita */}
+          <div
+            className={`absolute inset-0 transition-transform duration-300 ease-out ${
+              lote ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
             <PainelLote lote={lote} aoFechar={() => setLote(null)} inline />
-          ) : modo === 'virtual' ? (
-            <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
-          ) : (
-            <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
-          )}
+          </div>
         </div>
       )}
     </div>

@@ -45,7 +45,7 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
     <aside className="flex h-full w-full flex-col bg-white">
       <div className="border-b p-3">
         <h2 className="mb-2 flex items-center gap-1.5 font-semibold">
-          <LayoutGrid size={16} /> Lotes em {cidade}
+          <LayoutGrid size={16} /> Vitrines em {cidade}
         </h2>
 
         <div className="mb-2 space-y-1 rounded-lg bg-slate-50 p-2 text-xs">

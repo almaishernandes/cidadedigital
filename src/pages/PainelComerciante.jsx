@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Store, Search, Mail, Crosshair, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Store, Search, Mail, Crosshair, Clock, CheckCircle2, XCircle, Box } from 'lucide-react';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
 import { minhasLicencas, criarLote, solicitarLicenca } from '../lib/supabase/gestao.js';
+import { linkGoogleEarth3D } from '../lib/supabase/queries.js';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
@@ -324,6 +325,16 @@ export default function PainelComerciante() {
               <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
                 Lote: {sel.lote?.endereco}
                 {sel.lote?.numero ? `, ${sel.lote.numero}` : ''} — {sel.lote?.cidade}
+                {sel.lote?.latitude != null && sel.lote?.longitude != null && (
+                  <a
+                    className="ml-2 inline-flex items-center gap-1 font-medium text-blue-600 hover:underline"
+                    href={linkGoogleEarth3D(sel.lote.latitude, sel.lote.longitude)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Box size={14} /> Ver em 3D
+                  </a>
+                )}
                 {sel.status === 'pendente' && (
                   <span className="mt-1 block text-amber-700">
                     Você já pode preencher a vitrine. Ela ficará pública quando o

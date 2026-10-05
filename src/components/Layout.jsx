@@ -26,14 +26,7 @@ export default function Layout() {
           {usuario && (
             <NavLink to="/painel" className={linkCls}>
               <span className="inline-flex items-center gap-1">
-                <Store size={14} /> Vitrine
-              </span>
-            </NavLink>
-          )}
-          {usuario && (
-            <NavLink to="/cotacoes" className={linkCls}>
-              <span className="inline-flex items-center gap-1">
-                <FileText size={14} /> Cotações
+                <Store size={14} /> Vitrines
               </span>
             </NavLink>
           )}
@@ -41,6 +34,13 @@ export default function Layout() {
             <NavLink to="/admin/licencas" className={linkCls}>
               <span className="inline-flex items-center gap-1">
                 <ShieldCheck size={14} /> Licenças
+              </span>
+            </NavLink>
+          )}
+          {usuario && (
+            <NavLink to="/cotacoes" className={linkCls}>
+              <span className="inline-flex items-center gap-1">
+                <FileText size={14} /> Cotações
               </span>
             </NavLink>
           )}

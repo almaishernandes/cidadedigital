@@ -17,9 +17,6 @@ export default function Layout() {
           <span className="hidden sm:inline">Cidade Digital</span>
         </Link>
         <nav className="flex items-center gap-1 overflow-x-auto sm:ml-4">
-          <NavLink to="/" className={linkCls} end>
-            Mapa
-          </NavLink>
           {usuario && (
             <NavLink to="/painel" className={linkCls}>
               <span className="inline-flex items-center gap-1">
@@ -34,6 +31,9 @@ export default function Layout() {
               </span>
             </NavLink>
           )}
+          <NavLink to="/" className={linkCls} end>
+            Mapa
+          </NavLink>
         </nav>
 
         {/* Controles contextuais da página atual (ex.: cidade/modo do mapa) */}

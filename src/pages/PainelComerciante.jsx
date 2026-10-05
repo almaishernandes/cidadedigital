@@ -323,18 +323,29 @@ export default function PainelComerciante() {
           {sel && (
             <section className="space-y-6">
               <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-                Lote: {sel.lote?.endereco}
-                {sel.lote?.numero ? `, ${sel.lote.numero}` : ''} — {sel.lote?.cidade}
-                {sel.lote?.latitude != null && sel.lote?.longitude != null && (
-                  <a
-                    className="ml-2 inline-flex items-center gap-1 font-medium text-blue-600 hover:underline"
-                    href={linkGoogleEarth3D(sel.lote.latitude, sel.lote.longitude)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Box size={14} /> Ver em 3D
-                  </a>
-                )}
+                <div className="flex items-center gap-2">
+                  {sel.numero_licenca != null && (
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                      {sel.numero_licenca}
+                    </span>
+                  )}
+                  {sel.lote?.latitude != null && sel.lote?.longitude != null && (
+                    <a
+                      className="inline-flex items-center gap-1 font-medium text-blue-600 hover:underline"
+                      href={linkGoogleEarth3D(sel.lote.latitude, sel.lote.longitude)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Box size={14} /> Ver em 3D
+                    </a>
+                  )}
+                </div>
+                <p className="mt-1">
+                  Lote: {sel.lote?.endereco}
+                  {sel.lote?.numero ? `, ${sel.lote.numero}` : ''}
+                  {sel.lote?.bairro ? ` — ${sel.lote.bairro}` : ''}
+                  {sel.lote?.complemento ? ` (${sel.lote.complemento})` : ''} — {sel.lote?.cidade}
+                </p>
                 {sel.status === 'pendente' && (
                   <span className="mt-1 block text-amber-700">
                     Você já pode preencher a vitrine. Ela ficará pública quando o

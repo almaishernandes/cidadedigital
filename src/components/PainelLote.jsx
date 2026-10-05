@@ -54,6 +54,16 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                 {estab?.numero_licenca ?? lote.numero_licenca}
               </span>
             )}
+            {lote.latitude != null && lote.longitude != null && (
+              <a
+                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
+                href={linkGoogleEarth3D(lote.latitude, lote.longitude)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Box size={14} /> Ver em 3D
+              </a>
+            )}
           </div>
           <h2 className="text-lg font-semibold leading-tight">
             {estab?.nome_fantasia ?? 'Espaço disponível'}
@@ -61,18 +71,10 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
           <p className="flex items-center gap-1.5 text-sm text-slate-500">
             <MapPin size={14} /> {lote.endereco}
             {lote.numero ? `, ${lote.numero}` : ''}
+            {lote.bairro ? ` — ${lote.bairro}` : ''}
+            {lote.complemento ? ` (${lote.complemento})` : ''}
             {lote.cep ? ` — CEP ${lote.cep}` : ''}
           </p>
-          {lote.latitude != null && lote.longitude != null && (
-            <a
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
-              href={linkGoogleEarth3D(lote.latitude, lote.longitude)}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Box size={14} /> Ver prédio em 3D (Google Earth)
-            </a>
-          )}
         </div>
         <button onClick={aoFechar} className="rounded p-1 hover:bg-slate-100" aria-label="Fechar">
           <X size={20} />

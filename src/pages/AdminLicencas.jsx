@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ShieldCheck, Check, Ban, MapPin } from 'lucide-react';
+import { ShieldCheck, Check, Ban, MapPin, Box } from 'lucide-react';
 import { licencasPorStatus, ativarLicenca, definirLicenca } from '../lib/supabase/gestao.js';
+import { linkGoogleEarth3D } from '../lib/supabase/queries.js';
 import EditorEndereco from '../components/EditorEndereco.jsx';
 
 const ABAS = ['pendente', 'ativa', 'expirada'];
@@ -85,8 +86,20 @@ export default function AdminLicencas() {
                       {l.numero_licenca}
                     </span>
                   )}
+                  {l.lote?.latitude != null && l.lote?.longitude != null && (
+                    <a
+                      className="mr-1.5 inline-flex items-center gap-1 align-middle font-medium text-blue-600 hover:underline"
+                      href={linkGoogleEarth3D(l.lote.latitude, l.lote.longitude)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <Box size={14} /> Ver em 3D
+                    </a>
+                  )}
                   {l.lote?.endereco}
-                  {l.lote?.numero ? `, ${l.lote.numero}` : ''} — {l.lote?.cidade}
+                  {l.lote?.numero ? `, ${l.lote.numero}` : ''}
+                  {l.lote?.bairro ? ` — ${l.lote.bairro}` : ''}
+                  {l.lote?.complemento ? ` (${l.lote.complemento})` : ''} — {l.lote?.cidade}
                   {l.tipo === 'publica' && (
                     <span className="ml-1.5 inline-block rounded bg-violet-100 px-1.5 py-0.5 align-middle text-xs font-medium text-violet-700">
                       Pública (sem custo)

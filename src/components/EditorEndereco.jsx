@@ -91,11 +91,12 @@ export default function EditorEndereco({
         setErro('CEP não encontrado na base dos Correios.');
         return;
       }
-      setEndereco(r.logradouro || endereco);
+      const enderecoNovo = r.logradouro || endereco;
+      setEndereco(enderecoNovo);
       setBairro(r.bairro);
       setLocalidadeCep({ cidade: r.cidade, uf: r.uf });
       setNumero(''); // número do lote anterior não vale pro endereço novo encontrado
-      await atualizarCepLote(loteId, r.cep);
+      await atualizarCepLote(loteId, r.cep, { endereco: enderecoNovo, bairro: r.bairro });
       aoSalvar?.();
     } catch (err) {
       setErro(err.message);

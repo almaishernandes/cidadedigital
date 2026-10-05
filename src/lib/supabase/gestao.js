@@ -47,8 +47,13 @@ export async function atualizarEnderecoLote(loteId, { endereco, numero, cep, lat
   if (error) throw error;
 }
 
-export async function atualizarCepLote(loteId, cep) {
-  const { error } = await supabase.rpc('atualizar_cep_lote', { p_lote_id: loteId, p_cep: cep || null });
+export async function atualizarCepLote(loteId, cep, { endereco, bairro } = {}) {
+  const { error } = await supabase.rpc('atualizar_cep_lote', {
+    p_lote_id: loteId,
+    p_cep: cep || null,
+    p_endereco: endereco || null,
+    p_bairro: bairro || null,
+  });
   if (error) throw error;
 }
 

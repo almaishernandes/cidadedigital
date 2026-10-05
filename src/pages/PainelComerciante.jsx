@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Store, Search, Mail, Crosshair, Clock, CheckCircle2, XCircle, Box } from 'lucide-react';
+import { Store, Search, Mail, Crosshair, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
 import { minhasLicencas, criarLote, solicitarLicenca } from '../lib/supabase/gestao.js';
-import { linkGoogleEarth3D } from '../lib/supabase/queries.js';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
@@ -323,24 +322,7 @@ export default function PainelComerciante() {
           {sel && (
             <section className="space-y-6">
               <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-                <div className="flex items-center gap-2">
-                  {sel.numero_licenca != null && (
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
-                      {sel.numero_licenca}
-                    </span>
-                  )}
-                  {sel.lote?.latitude != null && sel.lote?.longitude != null && (
-                    <a
-                      className="inline-flex items-center gap-1 font-medium text-blue-600 hover:underline"
-                      href={linkGoogleEarth3D(sel.lote.latitude, sel.lote.longitude)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Box size={14} /> Ver em 3D
-                    </a>
-                  )}
-                </div>
-                <p className="mt-1">
+                <p>
                   Lote: {sel.lote?.endereco}
                   {sel.lote?.numero ? `, ${sel.lote.numero}` : ''}
                   {sel.lote?.bairro ? ` — ${sel.lote.bairro}` : ''}

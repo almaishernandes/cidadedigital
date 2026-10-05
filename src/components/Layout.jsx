@@ -5,6 +5,12 @@ import { useAuth } from '../lib/supabase/AuthContext.jsx';
 const linkCls = ({ isActive }) =>
   `px-3 py-1.5 rounded text-sm ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'}`;
 
+const ROTULO_PERFIL = {
+  admin: 'Suporte',
+  comerciante: 'Cliente',
+  visitante: 'Usuário',
+};
+
 export default function Layout() {
   const { usuario, perfil, ehAdmin, sair } = useAuth();
   const nav = useNavigate();
@@ -49,7 +55,12 @@ export default function Layout() {
         <div className="ml-auto flex items-center gap-2 text-sm sm:gap-3">
           {usuario ? (
             <>
-              <span className="hidden max-w-[10rem] truncate text-slate-500 sm:inline">
+              <span className="hidden max-w-[16rem] truncate text-slate-500 sm:inline">
+                {perfil?.funcao && (
+                  <span className="mr-1.5 rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">
+                    {ROTULO_PERFIL[perfil.funcao] ?? perfil.funcao}
+                  </span>
+                )}
                 {perfil?.nome ?? usuario.email}
               </span>
               <button

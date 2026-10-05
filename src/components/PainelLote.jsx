@@ -32,7 +32,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     setCarrinho({});
     setMostrarForm(false);
     setCotacaoEnviada(false);
-    if (lote.status_vitrine !== 'ocupado') return;
+    if (lote.status_vitrine !== 'ocupado' || !usuario) return;
     setCarregando(true);
     (async () => {
       try {
@@ -50,7 +50,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     return () => {
       vivo = false;
     };
-  }, [lote]);
+  }, [lote, usuario]);
 
   const produtosFiltrados = useMemo(() => {
     const t = buscaCatalogo.trim().toLowerCase();
@@ -135,7 +135,9 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
             )}
           </div>
           <h2 className="text-lg font-semibold leading-tight">
-            {estab?.nome_fantasia ?? 'Espaço disponível'}
+            {status === 'ocupado' && !usuario
+              ? 'Vitrine licenciada'
+              : (estab?.nome_fantasia ?? 'Espaço disponível')}
           </h2>
           <p className="flex items-center gap-1.5 text-sm text-slate-500">
             <MapPin size={14} />
@@ -158,6 +160,15 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
 
       <div className="flex-1 space-y-4 p-4">
         {carregando && <p className="text-sm text-slate-500">Carregando vitrine…</p>}
+
+        {status === 'ocupado' && !usuario && (
+          <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
+            Entre ou cadastre-se pra ver os dados dessa vitrine (nome, contato, catálogo).{' '}
+            <a className="font-medium underline" href="/entrar">
+              Entrar
+            </a>
+          </div>
+        )}
 
         {!carregando && status === 'oportunidade' && (
           <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">

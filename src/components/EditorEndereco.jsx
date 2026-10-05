@@ -198,6 +198,28 @@ export default function EditorEndereco({
         )}
       </form>
 
+      <form onSubmit={localizarNoMapa} className="flex flex-wrap gap-2">
+        <input
+          className="flex-1 rounded border px-2 py-1.5 text-sm"
+          placeholder="Rua, avenida..."
+          value={endereco}
+          onChange={(e) => setEndereco(e.target.value)}
+          required
+        />
+        <input
+          className="w-24 rounded border px-2 py-1.5 text-sm"
+          placeholder="Nº"
+          value={numero}
+          onChange={(e) => setNumero(e.target.value)}
+        />
+        <button
+          disabled={buscandoGeo}
+          className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+        >
+          <Search size={14} /> {buscandoGeo ? 'Localizando…' : 'Localizar no mapa'}
+        </button>
+      </form>
+
       <form onSubmit={usarCoordenadas} className="flex flex-wrap items-end gap-2">
         <label className="text-sm">
           <span className="mb-1 block text-slate-600">Latitude</span>
@@ -229,28 +251,6 @@ export default function EditorEndereco({
           className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"
         >
           <LocateFixed size={14} /> {localizandoGps ? 'Localizando…' : 'Usar minha localização atual'}
-        </button>
-      </form>
-
-      <form onSubmit={localizarNoMapa} className="flex flex-wrap gap-2">
-        <input
-          className="flex-1 rounded border px-2 py-1.5 text-sm"
-          placeholder="Rua, avenida..."
-          value={endereco}
-          onChange={(e) => setEndereco(e.target.value)}
-          required
-        />
-        <input
-          className="w-24 rounded border px-2 py-1.5 text-sm"
-          placeholder="Nº"
-          value={numero}
-          onChange={(e) => setNumero(e.target.value)}
-        />
-        <button
-          disabled={buscandoGeo}
-          className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"
-        >
-          <Search size={14} /> {buscandoGeo ? 'Localizando…' : 'Localizar no mapa'}
         </button>
       </form>
 

@@ -136,6 +136,7 @@ export default function AdminLicencas() {
                   cidade={l.lote.cidade}
                   enderecoInicial={l.lote.endereco}
                   numeroInicial={l.lote.numero}
+                  cepInicial={l.lote.cep}
                   aoSalvar={() => {
                     setEditandoEndereco(null);
                     carregar();

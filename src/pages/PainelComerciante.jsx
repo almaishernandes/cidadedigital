@@ -337,6 +337,7 @@ export default function PainelComerciante() {
                 cidade={sel.lote.cidade}
                 enderecoInicial={sel.lote.endereco}
                 numeroInicial={sel.lote.numero}
+                cepInicial={sel.lote.cep}
                 aoSalvar={recarregar}
               />
 

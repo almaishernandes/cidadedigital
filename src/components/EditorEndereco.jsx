@@ -1,11 +1,18 @@
 import { useState } from 'react';
-import { MapPin, Search, Check, Mail, Crosshair } from 'lucide-react';
+import { MapPin, Search, Check, Mail, Crosshair, Save } from 'lucide-react';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
-import { atualizarEnderecoLote } from '../lib/supabase/gestao.js';
+import { atualizarEnderecoLote, atualizarCepLote } from '../lib/supabase/gestao.js';
 
-export default function EditorEndereco({ loteId, cidade, enderecoInicial, numeroInicial, aoSalvar }) {
-  const [cep, setCep] = useState('');
+export default function EditorEndereco({
+  loteId,
+  cidade,
+  enderecoInicial,
+  numeroInicial,
+  cepInicial,
+  aoSalvar,
+}) {
+  const [cep, setCep] = useState(cepInicial ?? '');
   const [endereco, setEndereco] = useState(enderecoInicial ?? '');
   const [numero, setNumero] = useState(numeroInicial ?? '');
   const [bairro, setBairro] = useState('');
@@ -16,8 +23,22 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [buscandoGeo, setBuscandoGeo] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [salvandoCep, setSalvandoCep] = useState(false);
   const [encontrado, setEncontrado] = useState(null);
   const [erro, setErro] = useState(null);
+
+  async function salvarCep() {
+    setErro(null);
+    setSalvandoCep(true);
+    try {
+      await atualizarCepLote(loteId, cep);
+      aoSalvar?.();
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setSalvandoCep(false);
+    }
+  }
 
   async function buscarPorCep(e) {
     e.preventDefault();
@@ -123,6 +144,14 @@ export default function EditorEndereco({ loteId, cidade, enderecoInicial, numero
           className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm disabled:opacity-50"
         >
           <Mail size={14} /> {buscandoCep ? 'Buscando…' : 'Buscar CEP'}
+        </button>
+        <button
+          type="button"
+          onClick={salvarCep}
+          disabled={salvandoCep || cep.replace(/\D/g, '').length !== 8 || cep === (cepInicial ?? '')}
+          className="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+        >
+          <Save size={14} /> {salvandoCep ? 'Salvando…' : 'Salvar CEP'}
         </button>
         {bairro && (
           <span className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">

@@ -8,7 +8,7 @@ export async function minhasLicencas() {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao,
-       lote:lotes ( id, cidade, endereco, numero, area_m2, status_ocupacao ),
+       lote:lotes ( id, cidade, endereco, numero, cep, area_m2, status_ocupacao ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
          instagram_url, website_url, ecommerce_url, logo_url, horarios
@@ -44,6 +44,11 @@ export async function atualizarEnderecoLote(loteId, { endereco, numero, cep, lat
     p_area_m2: areaM2 ?? null,
     p_cep: cep || null,
   });
+  if (error) throw error;
+}
+
+export async function atualizarCepLote(loteId, cep) {
+  const { error } = await supabase.rpc('atualizar_cep_lote', { p_lote_id: loteId, p_cep: cep || null });
   if (error) throw error;
 }
 
@@ -113,7 +118,7 @@ export async function licencasPorStatus(status = 'pendente') {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao, criado_em,
-       lote:lotes ( id, cidade, endereco, numero ),
+       lote:lotes ( id, cidade, endereco, numero, cep ),
        perfil:perfis ( id, nome, email, telefone )`
     )
     .eq('status', status)

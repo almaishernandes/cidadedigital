@@ -154,8 +154,11 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
 
         {!carregando && status === 'oportunidade' && (
           <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
-            Este lote está livre. Quer transformá-lo em uma vitrine digital?{' '}
-            <a className="font-medium underline" href="/cadastro">
+            {lote.status_ocupacao === 'vago'
+              ? 'Este lote está livre.'
+              : 'Este espaço ainda não tem vitrine digital.'}{' '}
+            Quer transformá-lo em uma vitrine digital?{' '}
+            <a className="font-medium underline" href="/painel">
               Ativar licença
             </a>
           </div>

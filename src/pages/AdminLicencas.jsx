@@ -137,6 +137,9 @@ export default function AdminLicencas() {
                   enderecoInicial={l.lote.endereco}
                   numeroInicial={l.lote.numero}
                   cepInicial={l.lote.cep}
+                  latInicial={l.lote.latitude}
+                  lngInicial={l.lote.longitude}
+                  areaM2Inicial={l.lote.area_m2}
                   aoSalvar={() => {
                     setEditandoEndereco(null);
                     carregar();

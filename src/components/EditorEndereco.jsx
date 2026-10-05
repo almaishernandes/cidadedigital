@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Search, Check, Mail, Crosshair, Save } from 'lucide-react';
+import { MapPin, Search, Check, Mail, Crosshair, Save, LocateFixed } from 'lucide-react';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
 import { atualizarEnderecoLote, atualizarCepLote } from '../lib/supabase/gestao.js';
@@ -10,6 +10,9 @@ export default function EditorEndereco({
   enderecoInicial,
   numeroInicial,
   cepInicial,
+  latInicial,
+  lngInicial,
+  areaM2Inicial,
   aoSalvar,
 }) {
   const [cep, setCep] = useState(cepInicial ?? '');
@@ -17,15 +20,48 @@ export default function EditorEndereco({
   const [numero, setNumero] = useState(numeroInicial ?? '');
   const [bairro, setBairro] = useState('');
   const [localidadeCep, setLocalidadeCep] = useState(null); // { cidade, uf } vindos do CEP
-  const [lat, setLat] = useState('');
-  const [lng, setLng] = useState('');
+  const [lat, setLat] = useState(latInicial != null ? String(latInicial) : '');
+  const [lng, setLng] = useState(lngInicial != null ? String(lngInicial) : '');
 
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [buscandoGeo, setBuscandoGeo] = useState(false);
+  const [localizandoGps, setLocalizandoGps] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [salvandoCep, setSalvandoCep] = useState(false);
   const [encontrado, setEncontrado] = useState(null);
   const [erro, setErro] = useState(null);
+
+  function usarLocalizacaoAtual() {
+    setErro(null);
+    if (!navigator.geolocation) {
+      setErro('Seu navegador não suporta geolocalização.');
+      return;
+    }
+    if (!endereco.trim()) {
+      setErro('Preencha a rua antes de usar a localização atual.');
+      return;
+    }
+    setLocalizandoGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const latN = pos.coords.latitude;
+        const lngN = pos.coords.longitude;
+        setLat(String(latN));
+        setLng(String(lngN));
+        setEncontrado({
+          lat: latN,
+          lng: lngN,
+          nomeExibicao: `Localização atual do dispositivo (±${Math.round(pos.coords.accuracy)} m)`,
+        });
+        setLocalizandoGps(false);
+      },
+      (err) => {
+        setErro(`Não foi possível obter sua localização: ${err.message}`);
+        setLocalizandoGps(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000 }
+    );
+  }
 
   async function salvarCep() {
     setErro(null);
@@ -112,6 +148,7 @@ export default function EditorEndereco({
         cep,
         lat: encontrado.lat,
         lng: encontrado.lng,
+        areaM2: areaM2Inicial ?? undefined,
       });
       setEncontrado(null);
       aoSalvar?.();
@@ -184,6 +221,14 @@ export default function EditorEndereco({
         </label>
         <button className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm">
           <Crosshair size={14} /> Usar coordenadas
+        </button>
+        <button
+          type="button"
+          onClick={usarLocalizacaoAtual}
+          disabled={localizandoGps}
+          className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+        >
+          <LocateFixed size={14} /> {localizandoGps ? 'Localizando…' : 'Usar minha localização atual'}
         </button>
       </form>
 

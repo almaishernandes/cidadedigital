@@ -338,6 +338,9 @@ export default function PainelComerciante() {
                 enderecoInicial={sel.lote.endereco}
                 numeroInicial={sel.lote.numero}
                 cepInicial={sel.lote.cep}
+                latInicial={sel.lote.latitude}
+                lngInicial={sel.lote.longitude}
+                areaM2Inicial={sel.lote.area_m2}
                 aoSalvar={recarregar}
               />
 

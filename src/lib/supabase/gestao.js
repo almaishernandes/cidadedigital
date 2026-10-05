@@ -8,7 +8,7 @@ export async function minhasLicencas() {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao,
-       lote:lotes ( id, cidade, endereco, numero, cep, area_m2, status_ocupacao ),
+       lote:lotes ( id, cidade, endereco, numero, cep, area_m2, status_ocupacao, latitude, longitude ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
          instagram_url, website_url, ecommerce_url, logo_url, horarios
@@ -118,7 +118,7 @@ export async function licencasPorStatus(status = 'pendente') {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao, criado_em,
-       lote:lotes ( id, cidade, endereco, numero, cep ),
+       lote:lotes ( id, cidade, endereco, numero, cep, area_m2, latitude, longitude ),
        perfil:perfis ( id, nome, email, telefone )`
     )
     .eq('status', status)

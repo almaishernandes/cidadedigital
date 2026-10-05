@@ -49,9 +49,14 @@ export default function MapaPublico() {
       lote_id: v.lote_id,
       endereco: v.endereco,
       numero: v.numero,
+      bairro: v.bairro ?? null,
+      complemento: v.complemento ?? null,
+      cep: v.cep ?? null,
       area_m2: v.area_m2 ?? null,
       status_vitrine: v.status_vitrine ?? 'ocupado',
       numero_licenca: v.numero_licenca ?? null,
+      latitude: v.latitude ?? null,
+      longitude: v.longitude ?? null,
     });
     if (v.latitude != null && v.longitude != null) {
       setVoarPara({ latitude: v.latitude, longitude: v.longitude, token: Date.now() });

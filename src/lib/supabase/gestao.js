@@ -8,7 +8,7 @@ export async function minhasLicencas() {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao,
-       lote:lotes ( id, cidade, endereco, numero, cep, area_m2, status_ocupacao, latitude, longitude ),
+       lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, status_ocupacao, latitude, longitude ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
          instagram_url, website_url, ecommerce_url, logo_url, horarios
@@ -49,6 +49,19 @@ export async function atualizarEnderecoLote(loteId, { endereco, numero, cep, lat
 
 export async function atualizarCepLote(loteId, cep) {
   const { error } = await supabase.rpc('atualizar_cep_lote', { p_lote_id: loteId, p_cep: cep || null });
+  if (error) throw error;
+}
+
+/** Grava rua, número, bairro e complemento sem mexer na posição/geometria do lote. */
+export async function atualizarEnderecoTextoLote(loteId, { endereco, numero, bairro, complemento, cep }) {
+  const { error } = await supabase.rpc('atualizar_endereco_texto_lote', {
+    p_lote_id: loteId,
+    p_endereco: endereco,
+    p_numero: numero || null,
+    p_bairro: bairro || null,
+    p_complemento: complemento || null,
+    p_cep: cep || null,
+  });
   if (error) throw error;
 }
 
@@ -118,7 +131,7 @@ export async function licencasPorStatus(status = 'pendente') {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao, criado_em,
-       lote:lotes ( id, cidade, endereco, numero, cep, area_m2, latitude, longitude ),
+       lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, latitude, longitude ),
        perfil:perfis ( id, nome, email, telefone )`
     )
     .eq('status', status)

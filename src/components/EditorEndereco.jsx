@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { MapPin, Search, Check, Mail, Crosshair, LocateFixed } from 'lucide-react';
+import { MapPin, Check, Mail, Crosshair, LocateFixed, Save } from 'lucide-react';
 import { buscarCep, formatarCep } from '../lib/cep.js';
-import { geocodarComFallback } from '../lib/geocode.js';
-import { atualizarEnderecoLote, atualizarCepLote } from '../lib/supabase/gestao.js';
+import {
+  atualizarEnderecoLote,
+  atualizarCepLote,
+  atualizarEnderecoTextoLote,
+} from '../lib/supabase/gestao.js';
 
 export default function EditorEndereco({
   loteId,
-  cidade,
   enderecoInicial,
   numeroInicial,
+  bairroInicial,
+  complementoInicial,
   cepInicial,
   latInicial,
   lngInicial,
@@ -18,17 +22,31 @@ export default function EditorEndereco({
   const [cep, setCep] = useState(cepInicial ?? '');
   const [endereco, setEndereco] = useState(enderecoInicial ?? '');
   const [numero, setNumero] = useState(numeroInicial ?? '');
-  const [bairro, setBairro] = useState('');
+  const [bairro, setBairro] = useState(bairroInicial ?? '');
+  const [complemento, setComplemento] = useState(complementoInicial ?? '');
   const [localidadeCep, setLocalidadeCep] = useState(null); // { cidade, uf } vindos do CEP
   const [lat, setLat] = useState(latInicial != null ? String(latInicial) : '');
   const [lng, setLng] = useState(lngInicial != null ? String(lngInicial) : '');
 
   const [buscandoCep, setBuscandoCep] = useState(false);
-  const [buscandoGeo, setBuscandoGeo] = useState(false);
   const [localizandoGps, setLocalizandoGps] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [salvandoTexto, setSalvandoTexto] = useState(false);
   const [encontrado, setEncontrado] = useState(null);
   const [erro, setErro] = useState(null);
+
+  async function gravarDadosInformados() {
+    setErro(null);
+    setSalvandoTexto(true);
+    try {
+      await atualizarEnderecoTextoLote(loteId, { endereco, numero, bairro, complemento, cep });
+      aoSalvar?.();
+    } catch (err) {
+      setErro(err.message);
+    } finally {
+      setSalvandoTexto(false);
+    }
+  }
 
   function usarLocalizacaoAtual() {
     setErro(null);
@@ -83,30 +101,6 @@ export default function EditorEndereco({
       setErro(err.message);
     } finally {
       setBuscandoCep(false);
-    }
-  }
-
-  async function localizarNoMapa(e) {
-    e.preventDefault();
-    setErro(null);
-    setEncontrado(null);
-    setBuscandoGeo(true);
-    try {
-      const cidadeConsulta = localidadeCep?.cidade || cidade;
-      const ufConsulta = localidadeCep?.uf || 'SP';
-      const r = await geocodarComFallback({
-        endereco,
-        numero,
-        bairro,
-        cidade: cidadeConsulta,
-        uf: ufConsulta,
-      });
-      if (!r) setErro('Endereço não encontrado no mapa. Confira a rua e o número.');
-      else setEncontrado(r);
-    } catch (err) {
-      setErro(err.message);
-    } finally {
-      setBuscandoGeo(false);
     }
   }
 
@@ -172,13 +166,12 @@ export default function EditorEndereco({
         </button>
       </form>
 
-      <form onSubmit={localizarNoMapa} className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         <input
           className="flex-1 rounded border px-2 py-1.5 text-sm"
           placeholder="Rua, avenida..."
           value={endereco}
           onChange={(e) => setEndereco(e.target.value)}
-          required
         />
         <input
           className="w-24 rounded border px-2 py-1.5 text-sm"
@@ -186,11 +179,20 @@ export default function EditorEndereco({
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
         />
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
         <input
           className="w-40 rounded border px-2 py-1.5 text-sm"
           placeholder="Bairro"
           value={bairro}
           onChange={(e) => setBairro(e.target.value)}
+        />
+        <input
+          className="flex-1 rounded border px-2 py-1.5 text-sm"
+          placeholder="Complemento (sala, bloco, referência...)"
+          value={complemento}
+          onChange={(e) => setComplemento(e.target.value)}
         />
         {localidadeCep && (
           <span className="inline-flex items-center rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">
@@ -198,12 +200,14 @@ export default function EditorEndereco({
           </span>
         )}
         <button
-          disabled={buscandoGeo}
-          className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"
+          type="button"
+          onClick={gravarDadosInformados}
+          disabled={salvandoTexto || !endereco.trim()}
+          className="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50"
         >
-          <Search size={14} /> {buscandoGeo ? 'Localizando…' : 'Localizar no mapa'}
+          <Save size={14} /> {salvandoTexto ? 'Gravando…' : 'Gravar dados informados'}
         </button>
-      </form>
+      </div>
 
       <form onSubmit={usarCoordenadas} className="flex flex-wrap items-end gap-2">
         <label className="text-sm">

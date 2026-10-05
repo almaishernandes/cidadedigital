@@ -133,9 +133,10 @@ export default function AdminLicencas() {
               <div className="mt-3">
                 <EditorEndereco
                   loteId={l.lote.id}
-                  cidade={l.lote.cidade}
                   enderecoInicial={l.lote.endereco}
                   numeroInicial={l.lote.numero}
+                  bairroInicial={l.lote.bairro}
+                  complementoInicial={l.lote.complemento}
                   cepInicial={l.lote.cep}
                   latInicial={l.lote.latitude}
                   lngInicial={l.lote.longitude}

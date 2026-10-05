@@ -345,9 +345,10 @@ export default function PainelComerciante() {
 
               <EditorEndereco
                 loteId={sel.lote.id}
-                cidade={sel.lote.cidade}
                 enderecoInicial={sel.lote.endereco}
                 numeroInicial={sel.lote.numero}
+                bairroInicial={sel.lote.bairro}
+                complementoInicial={sel.lote.complemento}
                 cepInicial={sel.lote.cep}
                 latInicial={sel.lote.latitude}
                 lngInicial={sel.lote.longitude}

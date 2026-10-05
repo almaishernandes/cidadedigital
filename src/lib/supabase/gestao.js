@@ -209,6 +209,13 @@ export async function definirLicenca(id, campos) {
   if (error) throw error;
 }
 
+/** Expira a licença e devolve o lote pra "vago" (senão ele fica preso como ocupado pra sempre). */
+export async function expirarLicenca(id, loteId) {
+  await definirLicenca(id, { status: 'expirada' });
+  const { error } = await supabase.from('lotes').update({ status_ocupacao: 'vago' }).eq('id', loteId);
+  if (error) throw error;
+}
+
 /**
  * Ativa a licença. Comercial: define vigência (meses) e marca o lote como
  * comercial. Pública (sem custo, só identifica o espaço): sem vencimento,

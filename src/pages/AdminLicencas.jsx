@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ShieldCheck, Check, Ban, MapPin, Box } from 'lucide-react';
-import { licencasPorStatus, ativarLicenca, definirLicenca } from '../lib/supabase/gestao.js';
+import { licencasPorStatus, ativarLicenca, expirarLicenca } from '../lib/supabase/gestao.js';
 import { linkGoogleEarth3D } from '../lib/supabase/queries.js';
 import EditorEndereco from '../components/EditorEndereco.jsx';
 
@@ -41,7 +41,7 @@ export default function AdminLicencas() {
   async function expirar(l) {
     setOcupado(l.id);
     try {
-      await definirLicenca(l.id, { status: 'expirada' });
+      await expirarLicenca(l.id, l.lote.id);
       await carregar();
     } catch (e) {
       setErro(e.message);

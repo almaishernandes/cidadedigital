@@ -131,12 +131,18 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
             {estab?.nome_fantasia ?? 'Espaço disponível'}
           </h2>
           <p className="flex items-center gap-1.5 text-sm text-slate-500">
-            <MapPin size={14} /> {lote.endereco}
+            <MapPin size={14} />
+            {lote.cep ? `CEP ${lote.cep} — ` : ''}
+            {lote.endereco}
             {lote.numero ? `, ${lote.numero}` : ''}
-            {lote.bairro ? ` — ${lote.bairro}` : ''}
-            {lote.complemento ? ` (${lote.complemento})` : ''}
-            {lote.cep ? ` — CEP ${lote.cep}` : ''}
           </p>
+          {(lote.bairro || lote.complemento) && (
+            <p className="pl-[20px] text-sm text-slate-500">
+              {lote.bairro}
+              {lote.bairro && lote.complemento ? ' — ' : ''}
+              {lote.complemento}
+            </p>
+          )}
         </div>
         <button onClick={aoFechar} className="rounded p-1 hover:bg-slate-100" aria-label="Fechar">
           <X size={20} />

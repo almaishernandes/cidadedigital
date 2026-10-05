@@ -107,6 +107,11 @@ grant execute on function atualizar_endereco_lote(uuid, text, text, double preci
 
 -- RPCs usadas pelos painéis dos mapas (físico, virtual e digital) passam a
 -- devolver o CEP junto do endereço, mantendo as telas consistentes entre si.
+-- O retorno (colunas da tabela) mudou, então as funções precisam ser
+-- recriadas do zero — "create or replace" não troca o tipo de retorno.
+drop function if exists lotes_cidade(text);
+drop function if exists vitrines_cidade(text);
+
 create or replace function lotes_cidade(p_cidade text)
 returns table (
   lote_id uuid,

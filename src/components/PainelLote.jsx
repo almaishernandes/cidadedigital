@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
-import { X, Phone, Instagram, Globe, ExternalLink, MapPin } from 'lucide-react';
+import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box } from 'lucide-react';
 import StatusBadge from './StatusBadge.jsx';
-import { buscarEstabelecimentoPorLote, linkWhatsApp } from '../lib/supabase/queries.js';
+import {
+  buscarEstabelecimentoPorLote,
+  linkWhatsApp,
+  linkGoogleEarth3D,
+} from '../lib/supabase/queries.js';
 
 export default function PainelLote({ lote, aoFechar, inline = false }) {
   const [estab, setEstab] = useState(null);
@@ -59,6 +63,16 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
             {lote.numero ? `, ${lote.numero}` : ''}
             {lote.cep ? ` — CEP ${lote.cep}` : ''}
           </p>
+          {lote.latitude != null && lote.longitude != null && (
+            <a
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline"
+              href={linkGoogleEarth3D(lote.latitude, lote.longitude)}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Box size={14} /> Ver prédio em 3D (Google Earth)
+            </a>
+          )}
         </div>
         <button onClick={aoFechar} className="rounded p-1 hover:bg-slate-100" aria-label="Fechar">
           <X size={20} />

@@ -190,12 +190,6 @@ export default function EditorEndereco({
         >
           <Save size={14} /> {salvandoCep ? 'Salvando…' : 'Salvar CEP'}
         </button>
-        {bairro && (
-          <span className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">
-            {bairro}
-            {localidadeCep ? ` — ${localidadeCep.cidade}/${localidadeCep.uf}` : ''}
-          </span>
-        )}
       </form>
 
       <form onSubmit={localizarNoMapa} className="flex flex-wrap gap-2">
@@ -212,6 +206,17 @@ export default function EditorEndereco({
           value={numero}
           onChange={(e) => setNumero(e.target.value)}
         />
+        <input
+          className="w-40 rounded border px-2 py-1.5 text-sm"
+          placeholder="Bairro"
+          value={bairro}
+          onChange={(e) => setBairro(e.target.value)}
+        />
+        {localidadeCep && (
+          <span className="inline-flex items-center rounded bg-slate-100 px-2 py-1 text-xs text-slate-600">
+            {localidadeCep.cidade}/{localidadeCep.uf}
+          </span>
+        )}
         <button
           disabled={buscandoGeo}
           className="inline-flex items-center gap-1 rounded bg-slate-800 px-3 py-1.5 text-sm text-white disabled:opacity-50"

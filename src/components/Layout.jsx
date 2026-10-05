@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { MapPinned, LogOut, Store, ShieldCheck } from 'lucide-react';
+import { MapPinned, LogOut, Store, ShieldCheck, FileText } from 'lucide-react';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
 
 const linkCls = ({ isActive }) =>
@@ -21,6 +21,13 @@ export default function Layout() {
             <NavLink to="/painel" className={linkCls}>
               <span className="inline-flex items-center gap-1">
                 <Store size={14} /> Vitrine
+              </span>
+            </NavLink>
+          )}
+          {usuario && (
+            <NavLink to="/cotacoes" className={linkCls}>
+              <span className="inline-flex items-center gap-1">
+                <FileText size={14} /> Minhas cotações
               </span>
             </NavLink>
           )}

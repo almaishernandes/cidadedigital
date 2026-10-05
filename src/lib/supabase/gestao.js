@@ -89,6 +89,65 @@ export async function solicitarLicenca(loteId, tipo = 'comercial') {
   return data;
 }
 
+// ---------- Cotações (perfil Usuário pedindo preço/condições) ----------
+
+/** Envia um pedido de cotação de itens do catálogo pra vitrine. */
+export async function criarCotacao(estabelecimentoId, { mensagem, itens }) {
+  const { data: u } = await supabase.auth.getUser();
+  const { data: cot, error } = await supabase
+    .from('cotacoes')
+    .insert({ estabelecimento_id: estabelecimentoId, perfil_id: u.user.id, mensagem: mensagem || null })
+    .select('id')
+    .single();
+  if (error) throw error;
+
+  const linhas = itens.map((i) => ({
+    cotacao_id: cot.id,
+    produto_id: i.produtoId,
+    quantidade: i.quantidade,
+  }));
+  const { error: errItens } = await supabase.from('cotacao_itens').insert(linhas);
+  if (errItens) throw errItens;
+  return cot.id;
+}
+
+/** Cotações que EU pedi (perfil Usuário/Cliente), com o item e a resposta do comerciante. */
+export async function minhasCotacoes() {
+  const { data, error } = await supabase
+    .from('cotacoes')
+    .select(
+      `id, mensagem, resposta, status, criado_em,
+       estabelecimento:estabelecimentos ( nome_fantasia, telefone_whatsapp ),
+       itens:cotacao_itens ( id, quantidade, produto:produtos ( nome, preco ) )`
+    )
+    .order('criado_em', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+/** Cotações recebidas pela minha vitrine (comerciante). */
+export async function cotacoesRecebidas(estabelecimentoId) {
+  const { data, error } = await supabase
+    .from('cotacoes')
+    .select(
+      `id, mensagem, resposta, status, criado_em,
+       perfil:perfis ( nome, email, telefone ),
+       itens:cotacao_itens ( id, quantidade, produto:produtos ( nome, preco ) )`
+    )
+    .eq('estabelecimento_id', estabelecimentoId)
+    .order('criado_em', { ascending: false });
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function responderCotacao(id, resposta) {
+  const { error } = await supabase
+    .from('cotacoes')
+    .update({ resposta, status: 'respondida' })
+    .eq('id', id);
+  if (error) throw error;
+}
+
 export async function salvarEstabelecimento(licencaId, campos) {
   const { data, error } = await supabase
     .from('estabelecimentos')

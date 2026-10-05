@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Search } from 'lucide-react';
+import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Search, FileText, Check } from 'lucide-react';
 import StatusBadge from './StatusBadge.jsx';
 import {
   buscarEstabelecimentoPorLote,
@@ -7,12 +7,21 @@ import {
   linkWhatsApp,
   linkGoogleEarth3D,
 } from '../lib/supabase/queries.js';
+import { criarCotacao } from '../lib/supabase/gestao.js';
+import { useAuth } from '../lib/supabase/AuthContext.jsx';
 
 export default function PainelLote({ lote, aoFechar, inline = false }) {
+  const { usuario } = useAuth();
   const [estab, setEstab] = useState(null);
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(false);
   const [buscaCatalogo, setBuscaCatalogo] = useState('');
+  const [carrinho, setCarrinho] = useState({}); // produtoId -> quantidade
+  const [mostrarForm, setMostrarForm] = useState(false);
+  const [mensagemCotacao, setMensagemCotacao] = useState('');
+  const [enviandoCotacao, setEnviandoCotacao] = useState(false);
+  const [cotacaoEnviada, setCotacaoEnviada] = useState(false);
+  const [erroCotacao, setErroCotacao] = useState(null);
 
   useEffect(() => {
     if (!lote) return;
@@ -20,6 +29,9 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     setEstab(null);
     setProdutos([]);
     setBuscaCatalogo('');
+    setCarrinho({});
+    setMostrarForm(false);
+    setCotacaoEnviada(false);
     if (lote.status_vitrine !== 'ocupado') return;
     setCarregando(true);
     (async () => {
@@ -45,6 +57,40 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     if (!t) return produtos;
     return produtos.filter((p) => p.nome?.toLowerCase().includes(t));
   }, [produtos, buscaCatalogo]);
+
+  const itensCarrinho = Object.entries(carrinho).filter(([, qtd]) => qtd > 0);
+
+  function alternarItem(produtoId) {
+    setCarrinho((c) => {
+      const atual = { ...c };
+      if (atual[produtoId] > 0) delete atual[produtoId];
+      else atual[produtoId] = 1;
+      return atual;
+    });
+  }
+
+  function mudarQuantidade(produtoId, qtd) {
+    setCarrinho((c) => ({ ...c, [produtoId]: Math.max(1, qtd) }));
+  }
+
+  async function enviarCotacao() {
+    setErroCotacao(null);
+    setEnviandoCotacao(true);
+    try {
+      await criarCotacao(estab.id, {
+        mensagem: mensagemCotacao,
+        itens: itensCarrinho.map(([produtoId, quantidade]) => ({ produtoId, quantidade })),
+      });
+      setCotacaoEnviada(true);
+      setCarrinho({});
+      setMensagemCotacao('');
+      setMostrarForm(false);
+    } catch (err) {
+      setErroCotacao(err.message);
+    } finally {
+      setEnviandoCotacao(false);
+    }
+  }
 
   if (!lote) return null;
 
@@ -173,6 +219,13 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                   )}
                   {produtosFiltrados.map((p) => (
                     <li key={p.id} className="flex items-center gap-2 px-2 py-1.5 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={carrinho[p.id] > 0}
+                        onChange={() => alternarItem(p.id)}
+                        className="h-4 w-4 shrink-0"
+                        aria-label={`Selecionar ${p.nome} para cotação`}
+                      />
                       <span
                         className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
                           p.tipo === 'servico'
@@ -184,6 +237,16 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                         {p.tipo === 'servico' ? 'S' : 'P'}
                       </span>
                       <span className="flex-1 truncate">{p.nome}</span>
+                      {carrinho[p.id] > 0 && (
+                        <input
+                          type="number"
+                          min={1}
+                          value={carrinho[p.id]}
+                          onChange={(e) => mudarQuantidade(p.id, Number(e.target.value))}
+                          className="w-14 shrink-0 rounded border px-1.5 py-0.5 text-sm"
+                          aria-label={`Quantidade de ${p.nome}`}
+                        />
+                      )}
                       {p.preco != null && (
                         <span className="shrink-0 text-slate-600">
                           {Number(p.preco).toLocaleString('pt-BR', {
@@ -195,6 +258,64 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                     </li>
                   ))}
                 </ul>
+
+                {itensCarrinho.length > 0 && !usuario && (
+                  <p className="mt-2 text-sm text-slate-500">
+                    <a href="/entrar" className="font-medium text-blue-600 hover:underline">
+                      Entre ou cadastre-se
+                    </a>{' '}
+                    pra pedir cotação desses {itensCarrinho.length} item(ns).
+                  </p>
+                )}
+
+                {itensCarrinho.length > 0 && usuario && !mostrarForm && !cotacaoEnviada && (
+                  <button
+                    onClick={() => setMostrarForm(true)}
+                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white"
+                  >
+                    <FileText size={15} /> Pedir cotação ({itensCarrinho.length} item
+                    {itensCarrinho.length > 1 ? 'ns' : ''})
+                  </button>
+                )}
+
+                {mostrarForm && (
+                  <div className="mt-2 space-y-2 rounded-lg border bg-slate-50 p-3">
+                    <label className="block text-sm">
+                      <span className="mb-1 block text-slate-600">
+                        Observações (entrega, prazo, forma de pagamento...)
+                      </span>
+                      <textarea
+                        className="w-full rounded border px-2 py-1.5 text-sm"
+                        rows={3}
+                        value={mensagemCotacao}
+                        onChange={(e) => setMensagemCotacao(e.target.value)}
+                        placeholder="Ex.: preciso até sexta, prefiro retirar no local..."
+                      />
+                    </label>
+                    {erroCotacao && <p className="text-sm text-red-600">{erroCotacao}</p>}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={enviarCotacao}
+                        disabled={enviandoCotacao}
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:opacity-50"
+                      >
+                        <Check size={15} /> {enviandoCotacao ? 'Enviando…' : 'Enviar pedido de cotação'}
+                      </button>
+                      <button
+                        onClick={() => setMostrarForm(false)}
+                        className="rounded-lg border px-3 py-2 text-sm"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {cotacaoEnviada && (
+                  <p className="mt-2 rounded-lg bg-green-50 p-2 text-sm text-green-800">
+                    Pedido de cotação enviado! A vitrine vai responder com as condições.
+                  </p>
+                )}
               </section>
             )}
           </>

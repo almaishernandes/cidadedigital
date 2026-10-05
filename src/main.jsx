@@ -8,6 +8,7 @@ import MapaPublico from './pages/MapaPublico.jsx';
 import Entrar from './pages/Entrar.jsx';
 import PainelComerciante from './pages/PainelComerciante.jsx';
 import AdminLicencas from './pages/AdminLicencas.jsx';
+import MinhasCotacoes from './pages/MinhasCotacoes.jsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -23,6 +24,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
               element={
                 <RotaProtegida>
                   <PainelComerciante />
+                </RotaProtegida>
+              }
+            />
+            <Route
+              path="/cotacoes"
+              element={
+                <RotaProtegida>
+                  <MinhasCotacoes />
                 </RotaProtegida>
               }
             />

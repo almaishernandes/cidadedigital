@@ -7,6 +7,7 @@ import { geocodarComFallback } from '../lib/geocode.js';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
 import EditorProdutos from '../components/EditorProdutos.jsx';
 import EditorEndereco from '../components/EditorEndereco.jsx';
+import PainelCotacoes from '../components/PainelCotacoes.jsx';
 
 const ROTULO_STATUS = {
   ativa: { txt: 'Ativa', cls: 'bg-green-100 text-green-700', Icone: CheckCircle2 },
@@ -236,6 +237,7 @@ export default function PainelComerciante() {
   const [erro, setErro] = useState(null);
   const [carregando, setCarregando] = useState(true);
   const [mostrarSolicitar, setMostrarSolicitar] = useState(false);
+  const [pedidoEnviado, setPedidoEnviado] = useState(false);
 
   const recarregar = useCallback(async () => {
     setCarregando(true);
@@ -261,6 +263,7 @@ export default function PainelComerciante() {
       await solicitarLicenca(loteId, tipo);
       await recarregar();
       setMostrarSolicitar(false);
+      setPedidoEnviado(true);
     } catch (e) {
       setErro(e.message);
     }
@@ -277,11 +280,32 @@ export default function PainelComerciante() {
       </h1>
       {erro && <p className="text-sm text-red-600">{erro}</p>}
 
+      {pedidoEnviado && (
+        <div className="flex items-start justify-between gap-3 rounded-lg bg-green-50 p-3 text-sm text-green-800">
+          <p>
+            <strong>Pedido de licença enviado com sucesso!</strong> Já aparece abaixo como
+            "Aguardando ativação" — você já pode preencher os dados da vitrine e o catálogo.
+            Ela fica pública assim que o suporte confirmar o pagamento (ou, no caso de licença
+            pública, assim que validar o pedido) e ativar a licença.
+          </p>
+          <button
+            onClick={() => setPedidoEnviado(false)}
+            className="shrink-0 rounded p-1 text-green-700 hover:bg-green-100"
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {exibirFormSolicitar ? (
         <Solicitar aoSolicitar={pedir} />
       ) : (
         <button
-          onClick={() => setMostrarSolicitar(true)}
+          onClick={() => {
+            setMostrarSolicitar(true);
+            setPedidoEnviado(false);
+          }}
           className="rounded-lg border border-dashed px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
         >
           + Solicitar licença para outro endereço
@@ -362,6 +386,13 @@ export default function PainelComerciante() {
                 <div>
                   <h2 className="mb-3 font-medium">Catálogo de produtos</h2>
                   <EditorProdutos estabelecimentoId={sel.estabelecimento.id} />
+                </div>
+              )}
+
+              {sel.estabelecimento?.id && (
+                <div>
+                  <h2 className="mb-3 font-medium">Pedidos de cotação</h2>
+                  <PainelCotacoes estabelecimentoId={sel.estabelecimento.id} />
                 </div>
               )}
             </section>

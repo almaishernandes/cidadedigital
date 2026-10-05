@@ -1,26 +1,36 @@
-import { useEffect, useState } from 'react';
-import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Search } from 'lucide-react';
 import StatusBadge from './StatusBadge.jsx';
 import {
   buscarEstabelecimentoPorLote,
+  buscarProdutos,
   linkWhatsApp,
   linkGoogleEarth3D,
 } from '../lib/supabase/queries.js';
 
 export default function PainelLote({ lote, aoFechar, inline = false }) {
   const [estab, setEstab] = useState(null);
+  const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const [buscaCatalogo, setBuscaCatalogo] = useState('');
 
   useEffect(() => {
     if (!lote) return;
     let vivo = true;
     setEstab(null);
+    setProdutos([]);
+    setBuscaCatalogo('');
     if (lote.status_vitrine !== 'ocupado') return;
     setCarregando(true);
     (async () => {
       try {
         const e = await buscarEstabelecimentoPorLote(lote.lote_id);
-        if (vivo) setEstab(e);
+        if (!vivo) return;
+        setEstab(e);
+        if (e) {
+          const { produtos } = await buscarProdutos(e.id, { pagina: 0, tamanho: 200 });
+          if (vivo) setProdutos(produtos);
+        }
       } finally {
         if (vivo) setCarregando(false);
       }
@@ -29,6 +39,12 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
       vivo = false;
     };
   }, [lote]);
+
+  const produtosFiltrados = useMemo(() => {
+    const t = buscaCatalogo.trim().toLowerCase();
+    if (!t) return produtos;
+    return produtos.filter((p) => p.nome?.toLowerCase().includes(t));
+  }, [produtos, buscaCatalogo]);
 
   if (!lote) return null;
 
@@ -139,6 +155,48 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                 </a>
               )}
             </div>
+
+            {produtos.length > 0 && (
+              <section>
+                <div className="relative mb-2">
+                  <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    className="w-full rounded border py-1.5 pl-7 pr-2 text-sm"
+                    placeholder="Buscar item..."
+                    value={buscaCatalogo}
+                    onChange={(e) => setBuscaCatalogo(e.target.value)}
+                  />
+                </div>
+                <ul className="divide-y rounded-lg border">
+                  {produtosFiltrados.length === 0 && (
+                    <li className="p-2 text-sm text-slate-500">Nenhum item encontrado.</li>
+                  )}
+                  {produtosFiltrados.map((p) => (
+                    <li key={p.id} className="flex items-center gap-2 px-2 py-1.5 text-sm">
+                      <span
+                        className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
+                          p.tipo === 'servico'
+                            ? 'bg-sky-100 text-sky-700'
+                            : 'bg-emerald-100 text-emerald-700'
+                        }`}
+                        title={p.tipo === 'servico' ? 'Serviço' : 'Produto'}
+                      >
+                        {p.tipo === 'servico' ? 'S' : 'P'}
+                      </span>
+                      <span className="flex-1 truncate">{p.nome}</span>
+                      {p.preco != null && (
+                        <span className="shrink-0 text-slate-600">
+                          {Number(p.preco).toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL',
+                          })}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
           </>
         )}
       </div>

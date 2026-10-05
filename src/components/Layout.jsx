@@ -20,7 +20,7 @@ export default function Layout() {
           {usuario && (
             <NavLink to="/painel" className={linkCls}>
               <span className="inline-flex items-center gap-1">
-                <Store size={14} /> Minha vitrine
+                <Store size={14} /> Vitrine
               </span>
             </NavLink>
           )}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MapPin, Search, Check, Mail, Crosshair, Save, LocateFixed } from 'lucide-react';
+import { MapPin, Search, Check, Mail, Crosshair, LocateFixed } from 'lucide-react';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
 import { atualizarEnderecoLote, atualizarCepLote } from '../lib/supabase/gestao.js';
@@ -27,7 +27,6 @@ export default function EditorEndereco({
   const [buscandoGeo, setBuscandoGeo] = useState(false);
   const [localizandoGps, setLocalizandoGps] = useState(false);
   const [salvando, setSalvando] = useState(false);
-  const [salvandoCep, setSalvandoCep] = useState(false);
   const [encontrado, setEncontrado] = useState(null);
   const [erro, setErro] = useState(null);
 
@@ -63,19 +62,6 @@ export default function EditorEndereco({
     );
   }
 
-  async function salvarCep() {
-    setErro(null);
-    setSalvandoCep(true);
-    try {
-      await atualizarCepLote(loteId, cep);
-      aoSalvar?.();
-    } catch (err) {
-      setErro(err.message);
-    } finally {
-      setSalvandoCep(false);
-    }
-  }
-
   async function buscarPorCep(e) {
     e.preventDefault();
     setErro(null);
@@ -91,6 +77,8 @@ export default function EditorEndereco({
       setBairro(r.bairro);
       setLocalidadeCep({ cidade: r.cidade, uf: r.uf });
       setNumero(''); // número do lote anterior não vale pro endereço novo encontrado
+      await atualizarCepLote(loteId, r.cep);
+      aoSalvar?.();
     } catch (err) {
       setErro(err.message);
     } finally {
@@ -178,17 +166,9 @@ export default function EditorEndereco({
         </label>
         <button
           disabled={buscandoCep || cep.replace(/\D/g, '').length !== 8}
-          className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm disabled:opacity-50"
-        >
-          <Mail size={14} /> {buscandoCep ? 'Buscando…' : 'Buscar CEP'}
-        </button>
-        <button
-          type="button"
-          onClick={salvarCep}
-          disabled={salvandoCep || cep.replace(/\D/g, '').length !== 8 || cep === (cepInicial ?? '')}
           className="inline-flex items-center gap-1 rounded bg-blue-600 px-3 py-1.5 text-sm text-white disabled:opacity-50"
         >
-          <Save size={14} /> {salvandoCep ? 'Salvando…' : 'Salvar CEP'}
+          <Mail size={14} /> {buscandoCep ? 'Buscando…' : 'Buscar CEP'}
         </button>
       </form>
 

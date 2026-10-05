@@ -72,7 +72,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
             )}
             {lote.latitude != null && lote.longitude != null && (
               <a
-                className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline"
+                className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-700"
                 href={linkGoogleEarth3D(lote.latitude, lote.longitude)}
                 target="_blank"
                 rel="noreferrer"

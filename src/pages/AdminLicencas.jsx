@@ -88,7 +88,7 @@ export default function AdminLicencas() {
                   )}
                   {l.lote?.latitude != null && l.lote?.longitude != null && (
                     <a
-                      className="mr-1.5 inline-flex items-center gap-1 align-middle font-medium text-blue-600 hover:underline"
+                      className="mr-1.5 inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 align-middle text-xs font-medium text-white hover:bg-green-700"
                       href={linkGoogleEarth3D(l.lote.latitude, l.lote.longitude)}
                       target="_blank"
                       rel="noreferrer"

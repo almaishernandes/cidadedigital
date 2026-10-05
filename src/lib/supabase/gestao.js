@@ -7,7 +7,7 @@ export async function minhasLicencas() {
   const { data, error } = await supabase
     .from('licencas')
     .select(
-      `id, status, numero_licenca, data_inicio, data_fim, observacao,
+      `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao,
        lote:lotes ( id, cidade, endereco, numero, area_m2, status_ocupacao ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
@@ -60,11 +60,11 @@ export async function criarLote(cidade, { endereco, numero, cep, lat, lng }) {
   return data; // uuid do novo lote
 }
 
-export async function solicitarLicenca(loteId) {
+export async function solicitarLicenca(loteId, tipo = 'comercial') {
   const { data: u } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from('licencas')
-    .insert({ lote_id: loteId, perfil_id: u.user.id, status: 'pendente' })
+    .insert({ lote_id: loteId, perfil_id: u.user.id, status: 'pendente', tipo })
     .select('id')
     .single();
   if (error) throw error;
@@ -112,7 +112,7 @@ export async function licencasPorStatus(status = 'pendente') {
   const { data, error } = await supabase
     .from('licencas')
     .select(
-      `id, status, numero_licenca, data_inicio, data_fim, observacao, criado_em,
+      `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao, criado_em,
        lote:lotes ( id, cidade, endereco, numero ),
        perfil:perfis ( id, nome, email, telefone )`
     )
@@ -127,19 +127,26 @@ export async function definirLicenca(id, campos) {
   if (error) throw error;
 }
 
-/** Ativa a licença: define vigência de 12 meses e marca o lote como comercial. */
-export async function ativarLicenca(id, loteId, meses = 12) {
+/**
+ * Ativa a licença. Comercial: define vigência (meses) e marca o lote como
+ * comercial. Pública (sem custo, só identifica o espaço): sem vencimento,
+ * marca o lote como público.
+ */
+export async function ativarLicenca(id, loteId, meses = 12, tipo = 'comercial') {
   const inicio = new Date();
-  const fim = new Date();
-  fim.setMonth(fim.getMonth() + meses);
+  const publica = tipo === 'publica';
   await definirLicenca(id, {
     status: 'ativa',
     data_inicio: inicio.toISOString().slice(0, 10),
-    data_fim: fim.toISOString().slice(0, 10),
+    data_fim: publica ? null : (() => {
+      const fim = new Date();
+      fim.setMonth(fim.getMonth() + meses);
+      return fim.toISOString().slice(0, 10);
+    })(),
   });
   const { error } = await supabase
     .from('lotes')
-    .update({ status_ocupacao: 'comercial' })
+    .update({ status_ocupacao: publica ? 'publico' : 'comercial' })
     .eq('id', loteId);
   if (error) throw error;
 }

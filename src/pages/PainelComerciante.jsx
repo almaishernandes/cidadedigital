@@ -16,6 +16,7 @@ const ROTULO_STATUS = {
 
 function Solicitar({ aoSolicitar }) {
   const [cidade, setCidade] = useState('Osvaldo Cruz');
+  const [tipo, setTipo] = useState('comercial');
   const [cep, setCep] = useState('');
   const [endereco, setEndereco] = useState('');
   const [numero, setNumero] = useState('');
@@ -93,7 +94,7 @@ function Solicitar({ aoSolicitar }) {
         lat: encontrado.lat,
         lng: encontrado.lng,
       });
-      await aoSolicitar(loteId);
+      await aoSolicitar(loteId, tipo);
       setEndereco('');
       setNumero('');
       setBairro('');
@@ -109,6 +110,31 @@ function Solicitar({ aoSolicitar }) {
   return (
     <div className="space-y-3 rounded-lg border p-4">
       <h3 className="font-medium">Solicitar licença para um endereço</h3>
+
+      <div className="flex gap-2 text-sm">
+        <button
+          type="button"
+          onClick={() => setTipo('comercial')}
+          className={`flex-1 rounded-lg border px-3 py-2 text-left ${
+            tipo === 'comercial' ? 'border-blue-600 ring-1 ring-blue-600' : ''
+          }`}
+        >
+          <span className="block font-medium">Comercial</span>
+          <span className="text-xs text-slate-500">Vitrine de negócio, com licença paga.</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setTipo('publica')}
+          className={`flex-1 rounded-lg border px-3 py-2 text-left ${
+            tipo === 'publica' ? 'border-violet-600 ring-1 ring-violet-600' : ''
+          }`}
+        >
+          <span className="block font-medium">Pública</span>
+          <span className="text-xs text-slate-500">
+            Só identifica o espaço no mapa (prefeitura, escola, praça...), sem custo.
+          </span>
+        </button>
+      </div>
 
       <form onSubmit={buscarPorCep} className="flex flex-wrap items-end gap-2">
         <label className="text-sm">
@@ -228,11 +254,11 @@ export default function PainelComerciante() {
     recarregar();
   }, [recarregar]);
 
-  async function pedir(loteId) {
+  async function pedir(loteId, tipo) {
     setErro(null);
     try {
       if (perfil?.funcao === 'visitante') await virarComerciante();
-      await solicitarLicenca(loteId);
+      await solicitarLicenca(loteId, tipo);
       await recarregar();
       setMostrarSolicitar(false);
     } catch (e) {

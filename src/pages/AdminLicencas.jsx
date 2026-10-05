@@ -28,7 +28,7 @@ export default function AdminLicencas() {
   async function ativar(l) {
     setOcupado(l.id);
     try {
-      await ativarLicenca(l.id, l.lote.id);
+      await ativarLicenca(l.id, l.lote.id, 12, l.tipo);
       await carregar();
     } catch (e) {
       setErro(e.message);
@@ -87,12 +87,20 @@ export default function AdminLicencas() {
                   )}
                   {l.lote?.endereco}
                   {l.lote?.numero ? `, ${l.lote.numero}` : ''} — {l.lote?.cidade}
+                  {l.tipo === 'publica' && (
+                    <span className="ml-1.5 inline-block rounded bg-violet-100 px-1.5 py-0.5 align-middle text-xs font-medium text-violet-700">
+                      Pública (sem custo)
+                    </span>
+                  )}
                 </p>
                 <p className="text-slate-500">
                   {l.perfil?.nome ?? '—'} · {l.perfil?.email} · {l.perfil?.telefone ?? 'sem telefone'}
                 </p>
-                {l.data_fim && (
+                {l.data_fim ? (
                   <p className="text-slate-400">Vigência até {l.data_fim}</p>
+                ) : (
+                  l.status === 'ativa' &&
+                  l.tipo === 'publica' && <p className="text-slate-400">Sem vencimento</p>
                 )}
               </div>
               <button
@@ -107,7 +115,7 @@ export default function AdminLicencas() {
                   onClick={() => ativar(l)}
                   className="inline-flex items-center gap-1 rounded bg-green-600 px-3 py-1.5 text-white disabled:opacity-50"
                 >
-                  <Check size={14} /> Ativar (12 meses)
+                  <Check size={14} /> {l.tipo === 'publica' ? 'Ativar (sem vencimento)' : 'Ativar (12 meses)'}
                 </button>
               )}
               {aba === 'ativa' && (

@@ -259,23 +259,24 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                   ))}
                 </ul>
 
+                {!mostrarForm && !cotacaoEnviada && (
+                  <button
+                    onClick={() => (usuario ? setMostrarForm(true) : (window.location.href = '/entrar'))}
+                    disabled={itensCarrinho.length === 0}
+                    className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-slate-300"
+                  >
+                    <FileText size={15} /> Fazer Cotação
+                    {itensCarrinho.length > 0 &&
+                      ` (${itensCarrinho.length} item${itensCarrinho.length > 1 ? 'ns' : ''})`}
+                  </button>
+                )}
                 {itensCarrinho.length > 0 && !usuario && (
-                  <p className="mt-2 text-sm text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500">
                     <a href="/entrar" className="font-medium text-blue-600 hover:underline">
                       Entre ou cadastre-se
                     </a>{' '}
-                    pra pedir cotação desses {itensCarrinho.length} item(ns).
+                    pra enviar o pedido.
                   </p>
-                )}
-
-                {itensCarrinho.length > 0 && usuario && !mostrarForm && !cotacaoEnviada && (
-                  <button
-                    onClick={() => setMostrarForm(true)}
-                    className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white"
-                  >
-                    <FileText size={15} /> Pedir cotação ({itensCarrinho.length} item
-                    {itensCarrinho.length > 1 ? 'ns' : ''})
-                  </button>
                 )}
 
                 {mostrarForm && (

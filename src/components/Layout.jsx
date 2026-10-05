@@ -27,7 +27,7 @@ export default function Layout() {
           {usuario && (
             <NavLink to="/cotacoes" className={linkCls}>
               <span className="inline-flex items-center gap-1">
-                <FileText size={14} /> Minhas cotações
+                <FileText size={14} /> Cotações
               </span>
             </NavLink>
           )}

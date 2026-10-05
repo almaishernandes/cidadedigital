@@ -5,8 +5,10 @@ import { STATUS_MAPA } from './StatusBadge.jsx';
 
 const ABAS = [
   { chave: 'todos', rotulo: 'Todos' },
-  { chave: 'oportunidade', rotulo: 'Disponíveis' },
-  { chave: 'ocupado', rotulo: 'Ativos' },
+  { chave: 'oportunidade', rotulo: 'Disponível' },
+  { chave: 'ocupado', rotulo: 'Comercial' },
+  { chave: 'residencial', rotulo: 'Residencial' },
+  { chave: 'publico', rotulo: 'Público' },
 ];
 
 export default function PainelLotesFisico({ cidade, loteSelecionado, aoSelecionar }) {

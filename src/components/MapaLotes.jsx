@@ -14,6 +14,7 @@ const corPorStatus = [
   ['get', 'status_vitrine'],
   'oportunidade', '#f59e0b',
   'ocupado', '#2563eb',
+  'publico', '#7c3aed',
   /* residencial / outros */ '#cbd5e1',
 ];
 

@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ShieldCheck, Check, Ban, MapPin, Box } from 'lucide-react';
-import { licencasPorStatus, ativarLicenca, expirarLicenca } from '../lib/supabase/gestao.js';
+import { ShieldCheck, Check, Ban, MapPin, Box, Store, Trash2 } from 'lucide-react';
+import {
+  licencasPorStatus,
+  ativarLicenca,
+  expirarLicenca,
+  excluirEstabelecimento,
+} from '../lib/supabase/gestao.js';
 import { linkGoogleEarth3D } from '../lib/supabase/queries.js';
 import EditorEndereco from '../components/EditorEndereco.jsx';
+import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
+import EditorProdutos from '../components/EditorProdutos.jsx';
 
 const ABAS = ['pendente', 'ativa', 'expirada'];
 
@@ -12,6 +19,7 @@ export default function AdminLicencas() {
   const [erro, setErro] = useState(null);
   const [ocupado, setOcupado] = useState(null);
   const [editandoEndereco, setEditandoEndereco] = useState(null);
+  const [editandoVitrine, setEditandoVitrine] = useState(null);
 
   const carregar = useCallback(async () => {
     setErro(null);
@@ -42,6 +50,22 @@ export default function AdminLicencas() {
     setOcupado(l.id);
     try {
       await expirarLicenca(l.id, l.lote.id);
+      await carregar();
+    } catch (e) {
+      setErro(e.message);
+    } finally {
+      setOcupado(null);
+    }
+  }
+
+  async function excluirVitrine(l) {
+    if (!window.confirm(`Excluir a vitrine "${l.estabelecimento?.nome_fantasia}"? O catálogo junto também será apagado.`)) {
+      return;
+    }
+    setOcupado(l.id);
+    try {
+      await excluirEstabelecimento(l.estabelecimento.id);
+      setEditandoVitrine(null);
       await carregar();
     } catch (e) {
       setErro(e.message);
@@ -122,6 +146,12 @@ export default function AdminLicencas() {
               >
                 <MapPin size={14} /> {editandoEndereco === l.id ? 'Fechar' : 'Editar endereço'}
               </button>
+              <button
+                onClick={() => setEditandoVitrine((id) => (id === l.id ? null : l.id))}
+                className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-slate-700"
+              >
+                <Store size={14} /> {editandoVitrine === l.id ? 'Fechar' : 'Editar vitrine'}
+              </button>
               {aba === 'pendente' && (
                 <button
                   disabled={ocupado === l.id}
@@ -159,6 +189,31 @@ export default function AdminLicencas() {
                     carregar();
                   }}
                 />
+              </div>
+            )}
+
+            {editandoVitrine === l.id && (
+              <div className="mt-3 space-y-4 rounded-lg border bg-slate-50 p-3">
+                <EditorEstabelecimento
+                  licencaId={l.id}
+                  inicial={l.estabelecimento ?? undefined}
+                  aoSalvar={carregar}
+                />
+                {l.estabelecimento?.id && (
+                  <>
+                    <div>
+                      <h3 className="mb-2 text-sm font-medium">Catálogo de produtos</h3>
+                      <EditorProdutos estabelecimentoId={l.estabelecimento.id} />
+                    </div>
+                    <button
+                      disabled={ocupado === l.id}
+                      onClick={() => excluirVitrine(l)}
+                      className="inline-flex items-center gap-1 rounded border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Trash2 size={14} /> Excluir vitrine (dados + catálogo)
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </li>

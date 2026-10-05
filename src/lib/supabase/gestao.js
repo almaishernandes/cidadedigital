@@ -163,6 +163,12 @@ export async function salvarEstabelecimento(licencaId, campos) {
   return data;
 }
 
+/** Suporte/admin exclui a vitrine (dados da vitrine + catálogo); a licença continua existindo. */
+export async function excluirEstabelecimento(id) {
+  const { error } = await supabase.from('estabelecimentos').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function listarProdutos(estabelecimentoId) {
   const { data, error } = await supabase
     .from('produtos')
@@ -196,7 +202,11 @@ export async function licencasPorStatus(status = 'pendente') {
     .select(
       `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao, criado_em,
        lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, latitude, longitude ),
-       perfil:perfis ( id, nome, email, telefone )`
+       perfil:perfis ( id, nome, email, telefone ),
+       estabelecimento:estabelecimentos (
+         id, nome_fantasia, categoria, descricao, telefone_whatsapp,
+         instagram_url, website_url, ecommerce_url, logo_url, horarios
+       )`
     )
     .eq('status', status)
     .order('criado_em', { ascending: false });

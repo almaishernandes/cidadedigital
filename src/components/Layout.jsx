@@ -7,8 +7,8 @@ const linkCls = ({ isActive }) =>
 
 const ROTULO_PERFIL = {
   admin: 'Suporte',
-  comerciante: 'Cliente',
-  visitante: 'Usuário',
+  comerciante: 'Cliente · Consumidor',
+  visitante: 'Consumidor',
 };
 
 export default function Layout() {

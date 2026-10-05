@@ -57,7 +57,7 @@ export default function PainelCotacoes({ estabelecimentoId }) {
           return (
             <li key={c.id} className="rounded-lg border p-3 text-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <span className="font-medium">{c.perfil?.nome ?? c.perfil?.email ?? 'Usuário'}</span>
+                <span className="font-medium">{c.perfil?.nome ?? c.perfil?.email ?? 'Consumidor'}</span>
                 <span className={`rounded px-2 py-0.5 text-xs ${st.cls}`}>{st.txt}</span>
               </div>
               <p className="mt-1 text-xs text-slate-500">

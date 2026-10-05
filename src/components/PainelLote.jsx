@@ -110,7 +110,14 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
       <header className="flex items-start justify-between gap-3 border-b p-4">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <StatusBadge status={status} />
+            <StatusBadge
+              status={status}
+              rotulo={
+                status === 'oportunidade' && lote.status_ocupacao && lote.status_ocupacao !== 'vago'
+                  ? 'Sem vitrine'
+                  : undefined
+              }
+            />
             {(estab?.numero_licenca ?? lote.numero_licenca) != null && (
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
                 {estab?.numero_licenca ?? lote.numero_licenca}

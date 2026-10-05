@@ -107,7 +107,12 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
                       style={{ backgroundColor: cor }}
                     />
                     <span className="font-medium">
-                      {l.nome_fantasia ?? (l.status_vitrine === 'oportunidade' ? 'Espaço disponível' : l.endereco)}
+                      {l.nome_fantasia ??
+                        (l.status_vitrine === 'oportunidade'
+                          ? l.status_ocupacao && l.status_ocupacao !== 'vago'
+                            ? 'Sem vitrine digital'
+                            : 'Espaço disponível'
+                          : l.endereco)}
                     </span>
                   </span>
                   {l.categoria && <span className="ml-[18px] block text-xs text-slate-500">{l.categoria}</span>}

@@ -7,7 +7,7 @@ export const STATUS_MAPA = {
   publico: { rotulo: 'Público', cor: '#7c3aed', Icone: Landmark },
 };
 
-export default function StatusBadge({ status }) {
+export default function StatusBadge({ status, rotulo }) {
   const cfg = STATUS_MAPA[status] ?? STATUS_MAPA.residencial;
   const { Icone } = cfg;
   return (
@@ -15,7 +15,7 @@ export default function StatusBadge({ status }) {
       className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium text-white"
       style={{ backgroundColor: cfg.cor }}
     >
-      <Icone size={13} /> {cfg.rotulo}
+      <Icone size={13} /> {rotulo ?? cfg.rotulo}
     </span>
   );
 }

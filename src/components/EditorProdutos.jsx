@@ -204,10 +204,12 @@ export default function EditorProdutos({ estabelecimentoId }) {
                 <p className="font-medium">{p.nome}</p>
                 {p.preco != null && (
                   <p className="text-slate-500">
-                    {Number(p.preco).toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    })}
+                    {Number(p.preco) === 0
+                      ? 'Gratuito'
+                      : Number(p.preco).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
                   </p>
                 )}
               </div>

@@ -267,10 +267,12 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                         <span className="flex-1 truncate">{p.nome}</span>
                         {p.preco != null ? (
                           <span className="shrink-0 text-slate-600">
-                            {Number(p.preco).toLocaleString('pt-BR', {
-                              style: 'currency',
-                              currency: 'BRL',
-                            })}
+                            {Number(p.preco) === 0
+                              ? 'Gratuito'
+                              : Number(p.preco).toLocaleString('pt-BR', {
+                                  style: 'currency',
+                                  currency: 'BRL',
+                                })}
                           </span>
                         ) : estab.website_url ? (
                           <a

@@ -13,6 +13,12 @@ import EditorProdutos from '../components/EditorProdutos.jsx';
 
 const ABAS = ['pendente', 'ativa', 'expirada'];
 
+function formatarData(dataIso) {
+  const [ano, mes, dia] = dataIso.split('-');
+  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  return `${dia}/${meses[Number(mes) - 1]}/${ano}`;
+}
+
 export default function AdminLicencas() {
   const [aba, setAba] = useState('pendente');
   const [itens, setItens] = useState([]);
@@ -134,7 +140,7 @@ export default function AdminLicencas() {
                   {l.perfil?.nome ?? '—'} · {l.perfil?.email} · {l.perfil?.telefone ?? 'sem telefone'}
                 </p>
                 {l.data_fim ? (
-                  <p className="text-slate-400">Vigência até {l.data_fim}</p>
+                  <p className="text-slate-400">Vigência até {formatarData(l.data_fim)}</p>
                 ) : (
                   l.status === 'ativa' &&
                   l.tipo === 'publica' && <p className="text-slate-400">Sem vencimento</p>

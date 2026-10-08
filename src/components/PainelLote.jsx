@@ -209,7 +209,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
               )}
               {estab.website_url && (
                 <a
-                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white"
                   href={estab.website_url}
                   target="_blank"
                   rel="noreferrer"
@@ -297,7 +297,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                           rel="noreferrer"
                           className="shrink-0 font-medium text-blue-600 hover:underline"
                         >
-                          Consultar Site
+                          Consultar Preço
                         </a>
                       ) : (
                         <span className="shrink-0 text-slate-400">Consultar</span>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Search, FileText, Check } from 'lucide-react';
+import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Search, FileText, Check, Eye } from 'lucide-react';
 import StatusBadge from './StatusBadge.jsx';
 import {
   buscarEstabelecimentoPorLote,
@@ -255,7 +255,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                           aria-label={`Selecionar ${p.nome} para cotação`}
                         />
                         <span
-                          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
+                          className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-sm font-extrabold uppercase ${
                             p.tipo === 'servico'
                               ? 'bg-sky-100 text-sky-700'
                               : 'bg-emerald-100 text-emerald-700'
@@ -283,6 +283,18 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                           </a>
                         ) : (
                           <span className="shrink-0 text-slate-400">Consultar</span>
+                        )}
+                        {p.imagem_url && (
+                          <a
+                            href={p.imagem_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="shrink-0 text-slate-500 hover:text-blue-600"
+                            title={`Ver ${p.nome}`}
+                            aria-label={`Ver ${p.nome}`}
+                          >
+                            <Eye size={16} />
+                          </a>
                         )}
                       </div>
                       {carrinho[p.id] > 0 && (

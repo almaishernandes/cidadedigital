@@ -235,7 +235,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                   <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
                     className="w-full rounded border py-1.5 pl-7 pr-2 text-sm"
-                    placeholder="Buscar item..."
+                    placeholder="Buscar Produtos e Serviços..."
                     value={buscaCatalogo}
                     onChange={(e) => setBuscaCatalogo(e.target.value)}
                   />

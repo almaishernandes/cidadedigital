@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Trash2, Check, Pencil, Save, X } from 'lucide-react';
+import { Plus, Trash2, Check, Pencil, Save, X, Eye } from 'lucide-react';
 import { listarProdutos, salvarProduto, removerProduto } from '../lib/supabase/gestao.js';
 
 const NOVO = { nome: '', descricao: '', preco: '', imagem_url: '', tipo: 'produto', ativo: true };
@@ -188,31 +188,42 @@ export default function EditorProdutos({ estabelecimentoId }) {
               </div>
             </li>
           ) : (
-            <li key={p.id} className="flex items-center gap-3 p-3 text-sm">
-              {p.imagem_url && (
-                <img src={p.imagem_url} alt="" className="h-10 w-10 rounded object-cover" />
-              )}
+            <li key={p.id} className="flex items-center gap-2 px-3 py-2 text-sm">
               <span
-                className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
+                className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-sm text-sm font-extrabold uppercase ${
                   p.tipo === 'servico' ? 'bg-sky-100 text-sky-700' : 'bg-emerald-100 text-emerald-700'
                 }`}
                 title={p.tipo === 'servico' ? 'Serviço' : 'Produto'}
               >
                 {p.tipo === 'servico' ? 'S' : 'P'}
               </span>
-              <div className="flex-1">
-                <p className="font-medium">{p.nome}</p>
-                {p.preco != null && (
-                  <p className="text-slate-500">
-                    {Number(p.preco) === 0
-                      ? 'Gratuito'
-                      : Number(p.preco).toLocaleString('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        })}
-                  </p>
-                )}
-              </div>
+              <span className="flex-1 truncate font-medium">{p.nome}</span>
+              {p.preco != null && (
+                <span className="shrink-0 text-slate-600">
+                  {Number(p.preco) === 0
+                    ? 'Gratuito'
+                    : Number(p.preco).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                </span>
+              )}
+              {p.imagem_url ? (
+                <a
+                  href={p.imagem_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-600 text-white hover:bg-green-700"
+                  title={`Ver ${p.nome}`}
+                  aria-label={`Ver ${p.nome}`}
+                >
+                  <Eye size={14} />
+                </a>
+              ) : (
+                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                  <Eye size={14} />
+                </span>
+              )}
               <button
                 onClick={() => iniciarEdicao(p)}
                 className="rounded p-1 text-slate-600 hover:bg-slate-100"

@@ -363,7 +363,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                             rel="noreferrer"
                             className="shrink-0 font-medium text-blue-600 hover:underline"
                           >
-                            Consultar Preço
+                            Preço
                           </a>
                         ) : (
                           <span className="shrink-0 text-slate-400">Consultar</span>

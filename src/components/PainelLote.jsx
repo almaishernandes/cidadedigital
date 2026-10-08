@@ -274,13 +274,24 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                           aria-label={`Quantidade de ${p.nome}`}
                         />
                       )}
-                      {p.preco != null && (
+                      {p.preco != null ? (
                         <span className="shrink-0 text-slate-600">
                           {Number(p.preco).toLocaleString('pt-BR', {
                             style: 'currency',
                             currency: 'BRL',
                           })}
                         </span>
+                      ) : estab.website_url ? (
+                        <a
+                          href={estab.website_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="shrink-0 font-medium text-blue-600 hover:underline"
+                        >
+                          Consultar Site
+                        </a>
+                      ) : (
+                        <span className="shrink-0 text-slate-400">Consultar</span>
                       )}
                     </li>
                   ))}

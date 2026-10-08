@@ -284,17 +284,21 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                         ) : (
                           <span className="shrink-0 text-slate-400">Consultar</span>
                         )}
-                        {p.imagem_url && (
+                        {p.imagem_url ? (
                           <a
                             href={p.imagem_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="shrink-0 text-slate-500 hover:text-blue-600"
+                            className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-600 text-white hover:bg-green-700"
                             title={`Ver ${p.nome}`}
                             aria-label={`Ver ${p.nome}`}
                           >
-                            <Eye size={16} />
+                            <Eye size={14} />
                           </a>
+                        ) : (
+                          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-300">
+                            <Eye size={14} />
+                          </span>
                         )}
                       </div>
                       {carrinho[p.id] > 0 && (

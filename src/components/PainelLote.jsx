@@ -245,62 +245,67 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                     <li className="p-2 text-sm text-slate-500">Nenhum item encontrado.</li>
                   )}
                   {produtosFiltrados.map((p) => (
-                    <li key={p.id} className="flex items-center gap-2 px-2 py-1.5 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={carrinho[p.id] > 0}
-                        onChange={() => alternarItem(p.id)}
-                        className="h-4 w-4 shrink-0"
-                        aria-label={`Selecionar ${p.nome} para cotação`}
-                      />
-                      <span
-                        className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
-                          p.tipo === 'servico'
-                            ? 'bg-sky-100 text-sky-700'
-                            : 'bg-emerald-100 text-emerald-700'
-                        }`}
-                        title={p.tipo === 'servico' ? 'Serviço' : 'Produto'}
-                      >
-                        {p.tipo === 'servico' ? 'S' : 'P'}
-                      </span>
-                      {p.imagem_url && (
-                        <a href={p.imagem_url} target="_blank" rel="noreferrer" className="shrink-0">
-                          <img
-                            src={p.imagem_url}
-                            alt={p.nome}
-                            className="h-7 w-7 rounded object-cover"
-                          />
-                        </a>
-                      )}
-                      <span className="flex-1 truncate">{p.nome}</span>
-                      {carrinho[p.id] > 0 && (
+                    <li key={p.id} className="space-y-1 px-2 py-1.5 text-sm">
+                      <div className="flex items-center gap-2">
                         <input
-                          type="number"
-                          min={1}
-                          value={carrinho[p.id]}
-                          onChange={(e) => mudarQuantidade(p.id, Number(e.target.value))}
-                          className="w-14 shrink-0 rounded border px-1.5 py-0.5 text-sm"
-                          aria-label={`Quantidade de ${p.nome}`}
+                          type="checkbox"
+                          checked={carrinho[p.id] > 0}
+                          onChange={() => alternarItem(p.id)}
+                          className="h-4 w-4 shrink-0"
+                          aria-label={`Selecionar ${p.nome} para cotação`}
                         />
-                      )}
-                      {p.preco != null ? (
-                        <span className="shrink-0 text-slate-600">
-                          {Number(p.preco).toLocaleString('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          })}
-                        </span>
-                      ) : estab.website_url ? (
-                        <a
-                          href={estab.website_url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="shrink-0 font-medium text-blue-600 hover:underline"
+                        <span
+                          className={`inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm text-[10px] font-bold ${
+                            p.tipo === 'servico'
+                              ? 'bg-sky-100 text-sky-700'
+                              : 'bg-emerald-100 text-emerald-700'
+                          }`}
+                          title={p.tipo === 'servico' ? 'Serviço' : 'Produto'}
                         >
-                          Consultar Preço
-                        </a>
-                      ) : (
-                        <span className="shrink-0 text-slate-400">Consultar</span>
+                          {p.tipo === 'servico' ? 'S' : 'P'}
+                        </span>
+                        {p.imagem_url && (
+                          <a href={p.imagem_url} target="_blank" rel="noreferrer" className="shrink-0">
+                            <img
+                              src={p.imagem_url}
+                              alt={p.nome}
+                              className="h-6 w-6 rounded object-cover"
+                            />
+                          </a>
+                        )}
+                        <span className="flex-1 truncate">{p.nome}</span>
+                        {p.preco != null ? (
+                          <span className="shrink-0 text-slate-600">
+                            {Number(p.preco).toLocaleString('pt-BR', {
+                              style: 'currency',
+                              currency: 'BRL',
+                            })}
+                          </span>
+                        ) : estab.website_url ? (
+                          <a
+                            href={estab.website_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="shrink-0 font-medium text-blue-600 hover:underline"
+                          >
+                            Consultar Preço
+                          </a>
+                        ) : (
+                          <span className="shrink-0 text-slate-400">Consultar</span>
+                        )}
+                      </div>
+                      {carrinho[p.id] > 0 && (
+                        <div className="flex items-center gap-2 pl-6">
+                          <label className="text-xs text-slate-500">Quantidade</label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={carrinho[p.id]}
+                            onChange={(e) => mudarQuantidade(p.id, Number(e.target.value))}
+                            className="w-16 shrink-0 rounded border px-1.5 py-0.5 text-sm"
+                            aria-label={`Quantidade de ${p.nome}`}
+                          />
+                        </div>
                       )}
                     </li>
                   ))}

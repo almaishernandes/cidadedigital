@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Store, Search, Mail, Crosshair, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
-import { minhasLicencas, criarLote, solicitarLicenca } from '../lib/supabase/gestao.js';
+import {
+  minhasLicencas,
+  criarLote,
+  solicitarLicenca,
+  buscarLoteExato,
+} from '../lib/supabase/gestao.js';
 import { buscarCep, formatarCep } from '../lib/cep.js';
 import { geocodarComFallback } from '../lib/geocode.js';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
@@ -22,6 +27,9 @@ function Solicitar({ aoSolicitar }) {
   const [endereco, setEndereco] = useState('');
   const [numero, setNumero] = useState('');
   const [bairro, setBairro] = useState('');
+  const [ehPredio, setEhPredio] = useState(false);
+  const [andar, setAndar] = useState('');
+  const [sala, setSala] = useState('');
   const [lat, setLat] = useState('');
   const [lng, setLng] = useState('');
   const [encontrado, setEncontrado] = useState(null);
@@ -88,18 +96,27 @@ function Solicitar({ aoSolicitar }) {
     setEnviando(true);
     setErro(null);
     try {
-      const loteId = await criarLote(cidade, {
-        endereco,
-        numero,
-        cep,
-        lat: encontrado.lat,
-        lng: encontrado.lng,
+      let loteId = await buscarLoteExato(cidade, endereco, numero);
+      if (!loteId) {
+        loteId = await criarLote(cidade, {
+          endereco,
+          numero,
+          cep,
+          lat: encontrado.lat,
+          lng: encontrado.lng,
+        });
+      }
+      await aoSolicitar(loteId, tipo, {
+        andar: ehPredio && andar !== '' ? Number(andar) : null,
+        sala: ehPredio && sala !== '' ? Number(sala) : null,
       });
-      await aoSolicitar(loteId, tipo);
       setEndereco('');
       setNumero('');
       setBairro('');
       setCep('');
+      setEhPredio(false);
+      setAndar('');
+      setSala('');
       setEncontrado(null);
     } catch (err) {
       setErro(err.message);
@@ -186,6 +203,44 @@ function Solicitar({ aoSolicitar }) {
         </button>
       </form>
 
+      <label className="flex items-center gap-2 text-sm text-slate-600">
+        <input
+          type="checkbox"
+          checked={ehPredio}
+          onChange={(e) => setEhPredio(e.target.checked)}
+          className="h-4 w-4"
+        />
+        É uma unidade dentro de um prédio (andar/sala)?
+      </label>
+      {ehPredio && (
+        <div className="flex flex-wrap gap-2">
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-600">Andar (0 = térreo)</span>
+            <input
+              type="number"
+              className="w-28 rounded border px-2 py-1.5 text-sm"
+              placeholder="Ex.: 0, 1, 2..."
+              value={andar}
+              onChange={(e) => setAndar(e.target.value)}
+            />
+          </label>
+          <label className="text-sm">
+            <span className="mb-1 block text-slate-600">Sala (opcional)</span>
+            <input
+              type="number"
+              className="w-28 rounded border px-2 py-1.5 text-sm"
+              placeholder="Ex.: 1, 2, 3..."
+              value={sala}
+              onChange={(e) => setSala(e.target.value)}
+            />
+          </label>
+          <p className="w-full text-xs text-slate-500">
+            Se o endereço já existir (outro andar/sala do mesmo prédio já licenciado), sua licença
+            se junta a ele automaticamente, sem duplicar o prédio no mapa.
+          </p>
+        </div>
+      )}
+
       <form onSubmit={usarCoordenadas} className="flex flex-wrap items-end gap-2">
         <label className="text-sm">
           <span className="mb-1 block text-slate-600">Latitude</span>
@@ -256,11 +311,11 @@ export default function PainelComerciante() {
     recarregar();
   }, [recarregar]);
 
-  async function pedir(loteId, tipo) {
+  async function pedir(loteId, tipo, unidade) {
     setErro(null);
     try {
       if (perfil?.funcao === 'visitante') await virarComerciante();
-      await solicitarLicenca(loteId, tipo);
+      await solicitarLicenca(loteId, tipo, unidade);
       await recarregar();
       setMostrarSolicitar(false);
       setPedidoEnviado(true);

@@ -35,17 +35,28 @@ export async function buscarLotesCidade(cidade) {
   return data ?? [];
 }
 
-/** Detalhe da vitrine pública de um lote (apenas licença ativa). */
-export async function buscarEstabelecimentoPorLote(loteId) {
-  const { data, error } = await supabase
+/**
+ * Detalhe da vitrine pública. Quando o lote tem só uma licença ativa,
+ * basta o loteId. Quando tem várias (prédio com andares/salas), passe
+ * numeroLicenca pra pegar a unidade certa.
+ */
+export async function buscarEstabelecimentoPorLote(loteId, numeroLicenca) {
+  let q = supabase
     .from('estabelecimentos_publicos')
     .select(
       'id, nome_fantasia, categoria, descricao, telefone_whatsapp, instagram_url, website_url, logo_url, lote_id, numero_licenca'
-    )
-    .eq('lote_id', loteId)
-    .maybeSingle();
+    );
+  q = numeroLicenca != null ? q.eq('numero_licenca', numeroLicenca) : q.eq('lote_id', loteId);
+  const { data, error } = await q.maybeSingle();
   if (error) throw error;
   return data;
+}
+
+/** Todas as vitrines ativas de um lote — usado quando é um prédio com várias unidades. */
+export async function buscarVitrinesDoLote(loteId) {
+  const { data, error } = await supabase.rpc('vitrines_do_lote', { p_lote_id: loteId });
+  if (error) throw error;
+  return data ?? [];
 }
 
 /** Catálogo público (paginado) de um estabelecimento. */

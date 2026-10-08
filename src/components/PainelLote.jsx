@@ -4,11 +4,20 @@ import StatusBadge from './StatusBadge.jsx';
 import {
   buscarEstabelecimentoPorLote,
   buscarProdutos,
+  buscarVitrinesDoLote,
   linkWhatsApp,
   linkGoogleEarth3D,
 } from '../lib/supabase/queries.js';
 import { criarCotacao } from '../lib/supabase/gestao.js';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
+
+function rotuloUnidade(v) {
+  if (v.andar == null && v.sala == null) return v.nome_fantasia ?? `Licença ${v.numero_licenca}`;
+  const partes = [];
+  partes.push(v.andar === 0 ? 'Térreo' : v.andar != null ? `Andar ${v.andar}` : null);
+  if (v.sala != null) partes.push(`Sala ${v.sala}`);
+  return `${partes.filter(Boolean).join(' — ')}: ${v.nome_fantasia ?? `Licença ${v.numero_licenca}`}`;
+}
 
 export default function PainelLote({ lote, aoFechar, inline = false }) {
   const { usuario } = useAuth();
@@ -22,6 +31,10 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
   const [enviandoCotacao, setEnviandoCotacao] = useState(false);
   const [cotacaoEnviada, setCotacaoEnviada] = useState(false);
   const [erroCotacao, setErroCotacao] = useState(null);
+  const [unidades, setUnidades] = useState(null); // lista de vitrines quando o lote tem mais de uma
+  const [numeroLicencaEscolhido, setNumeroLicencaEscolhido] = useState(null);
+
+  const ehPredioComVarias = (lote?.total_vitrines ?? 1) > 1;
 
   useEffect(() => {
     if (!lote) return;
@@ -32,11 +45,19 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     setCarrinho({});
     setMostrarForm(false);
     setCotacaoEnviada(false);
+    setUnidades(null);
+    setNumeroLicencaEscolhido(null);
     if (lote.status_vitrine !== 'ocupado' || !usuario) return;
+
+    if (ehPredioComVarias && !lote.selecaoEspecifica) {
+      buscarVitrinesDoLote(lote.lote_id).then((v) => vivo && setUnidades(v));
+      return;
+    }
+
     setCarregando(true);
     (async () => {
       try {
-        const e = await buscarEstabelecimentoPorLote(lote.lote_id);
+        const e = await buscarEstabelecimentoPorLote(lote.lote_id, lote.numero_licenca);
         if (!vivo) return;
         setEstab(e);
         if (e) {
@@ -50,7 +71,29 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     return () => {
       vivo = false;
     };
-  }, [lote, usuario]);
+  }, [lote, usuario, ehPredioComVarias]);
+
+  useEffect(() => {
+    if (numeroLicencaEscolhido == null) return;
+    let vivo = true;
+    setCarregando(true);
+    (async () => {
+      try {
+        const e = await buscarEstabelecimentoPorLote(lote.lote_id, numeroLicencaEscolhido);
+        if (!vivo) return;
+        setEstab(e);
+        if (e) {
+          const { produtos } = await buscarProdutos(e.id, { pagina: 0, tamanho: 200 });
+          if (vivo) setProdutos(produtos);
+        }
+      } finally {
+        if (vivo) setCarregando(false);
+      }
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, [numeroLicencaEscolhido]);
 
   const produtosFiltrados = useMemo(() => {
     const t = buscaCatalogo.trim().toLowerCase();
@@ -137,7 +180,9 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
           <h2 className="text-lg font-semibold leading-tight">
             {status === 'ocupado' && !usuario
               ? 'Vitrine licenciada'
-              : (estab?.nome_fantasia ?? 'Espaço disponível')}
+              : status === 'ocupado' && ehPredioComVarias && !estab
+                ? 'Prédio com várias vitrines'
+                : (estab?.nome_fantasia ?? 'Espaço disponível')}
           </h2>
           <p className="flex items-center gap-1.5 text-sm text-slate-500">
             <MapPin size={14} />
@@ -180,6 +225,43 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
               Ativar licença
             </a>
           </div>
+        )}
+
+        {usuario && ehPredioComVarias && unidades && numeroLicencaEscolhido == null && (
+          <div>
+            <p className="mb-2 text-sm text-slate-600">
+              Este prédio tem {unidades.length} vitrines. Escolha uma:
+            </p>
+            <ul className="divide-y rounded-lg border">
+              {unidades.map((v) => (
+                <li key={v.licenca_id}>
+                  <button
+                    onClick={() => setNumeroLicencaEscolhido(v.numero_licenca)}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-slate-50"
+                  >
+                    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                      {v.numero_licenca}
+                    </span>
+                    <span className="flex-1">{rotuloUnidade(v)}</span>
+                    {v.categoria && <span className="text-xs text-slate-400">{v.categoria}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {numeroLicencaEscolhido != null && (
+          <button
+            onClick={() => {
+              setNumeroLicencaEscolhido(null);
+              setEstab(null);
+              setProdutos([]);
+            }}
+            className="text-xs font-medium text-blue-600 hover:underline"
+          >
+            ← Ver outras vitrines deste prédio
+          </button>
         )}
 
         {estab && (

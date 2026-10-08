@@ -7,7 +7,7 @@ export async function minhasLicencas() {
   const { data, error } = await supabase
     .from('licencas')
     .select(
-      `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao,
+      `id, status, tipo, numero_licenca, andar, sala, data_inicio, data_fim, observacao,
        lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, status_ocupacao, latitude, longitude ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
@@ -17,6 +17,19 @@ export async function minhasLicencas() {
     .order('criado_em', { ascending: false });
   if (error) throw error;
   return data ?? [];
+}
+
+/** Acha um lote já existente com endereço+número idênticos (evita duplicar prédio). */
+export async function buscarLoteExato(cidade, endereco, numero) {
+  let q = supabase
+    .from('lotes')
+    .select('id')
+    .eq('cidade', cidade)
+    .ilike('endereco', endereco.trim());
+  q = numero ? q.eq('numero', numero) : q.is('numero', null);
+  const { data, error } = await q.limit(1).maybeSingle();
+  if (error) throw error;
+  return data?.id ?? null;
 }
 
 /** Busca lotes por texto de endereço para solicitar licença (não residenciais). */
@@ -83,11 +96,18 @@ export async function criarLote(cidade, { endereco, numero, cep, lat, lng }) {
   return data; // uuid do novo lote
 }
 
-export async function solicitarLicenca(loteId, tipo = 'comercial') {
+export async function solicitarLicenca(loteId, tipo = 'comercial', { andar, sala } = {}) {
   const { data: u } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from('licencas')
-    .insert({ lote_id: loteId, perfil_id: u.user.id, status: 'pendente', tipo })
+    .insert({
+      lote_id: loteId,
+      perfil_id: u.user.id,
+      status: 'pendente',
+      tipo,
+      andar: andar ?? null,
+      sala: sala ?? null,
+    })
     .select('id')
     .single();
   if (error) throw error;
@@ -200,7 +220,7 @@ export async function licencasPorStatus(status = 'pendente') {
   const { data, error } = await supabase
     .from('licencas')
     .select(
-      `id, status, tipo, numero_licenca, data_inicio, data_fim, observacao, criado_em,
+      `id, status, tipo, numero_licenca, andar, sala, data_inicio, data_fim, observacao, criado_em,
        lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, latitude, longitude ),
        perfil:perfis ( id, nome, email, telefone ),
        estabelecimento:estabelecimentos (

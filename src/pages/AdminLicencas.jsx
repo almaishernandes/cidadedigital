@@ -130,6 +130,13 @@ export default function AdminLicencas() {
                   {l.lote?.numero ? `, ${l.lote.numero}` : ''}
                   {l.lote?.bairro ? ` — ${l.lote.bairro}` : ''}
                   {l.lote?.complemento ? ` (${l.lote.complemento})` : ''} — {l.lote?.cidade}
+                  {(l.andar != null || l.sala != null) && (
+                    <span className="ml-1.5 inline-block rounded bg-indigo-50 px-1.5 py-0.5 align-middle text-xs font-medium text-indigo-700">
+                      {l.andar != null ? `Andar ${l.andar}` : ''}
+                      {l.andar != null && l.sala != null ? ' · ' : ''}
+                      {l.sala != null ? `Sala ${l.sala}` : ''}
+                    </span>
+                  )}
                   {l.tipo === 'publica' && (
                     <span className="ml-1.5 inline-block rounded bg-violet-100 px-1.5 py-0.5 align-middle text-xs font-medium text-violet-700">
                       Pública (sem custo)

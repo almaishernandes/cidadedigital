@@ -55,6 +55,12 @@ export default function MapaPublico() {
       area_m2: v.area_m2 ?? null,
       status_vitrine: v.status_vitrine ?? 'ocupado',
       numero_licenca: v.numero_licenca ?? null,
+      total_vitrines: v.total_vitrines,
+      // lotes_cidade (lista do físico) traz total_vitrines: é o lote, pode ter
+      // várias unidades, então mostra o seletor de andar/sala quando houver
+      // mais de uma. vitrines_cidade (grade digital, lista virtual) já é a
+      // vitrine exata escolhida — vai direto pra ela.
+      selecaoEspecifica: v.total_vitrines === undefined,
       latitude: v.latitude ?? null,
       longitude: v.longitude ?? null,
     });

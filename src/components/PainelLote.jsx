@@ -263,6 +263,15 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                       >
                         {p.tipo === 'servico' ? 'S' : 'P'}
                       </span>
+                      {p.imagem_url && (
+                        <a href={p.imagem_url} target="_blank" rel="noreferrer" className="shrink-0">
+                          <img
+                            src={p.imagem_url}
+                            alt={p.nome}
+                            className="h-7 w-7 rounded object-cover"
+                          />
+                        </a>
+                      )}
                       <span className="flex-1 truncate">{p.nome}</span>
                       {carrinho[p.id] > 0 && (
                         <input

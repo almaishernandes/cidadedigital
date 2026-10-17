@@ -100,12 +100,21 @@ function aplicarVisibilidadeRuas(map, somenteRuas) {
 function paraPontos(fc) {
   return {
     type: 'FeatureCollection',
-    features: fc.features.map((f) => ({
-      type: 'Feature',
-      id: f.id,
-      properties: f.properties,
-      geometry: { type: 'Point', coordinates: centroideBbox(f.geometry) },
-    })),
+    features: fc.features.flatMap((f) => {
+      if (!f.geometry || !f.geometry.coordinates?.length) return [];
+      try {
+        return [
+          {
+            type: 'Feature',
+            id: f.id,
+            properties: f.properties,
+            geometry: { type: 'Point', coordinates: centroideBbox(f.geometry) },
+          },
+        ];
+      } catch {
+        return [];
+      }
+    }),
   };
 }
 

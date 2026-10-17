@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './lib/supabase/AuthContext.jsx';
+import ErroGeral from './components/ErroGeral.jsx';
 import Layout from './components/Layout.jsx';
 import RotaProtegida from './components/RotaProtegida.jsx';
 import MapaPublico from './pages/MapaPublico.jsx';
@@ -13,6 +14,7 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
+    <ErroGeral>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -48,5 +50,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </ErroGeral>
   </React.StrictMode>
 );

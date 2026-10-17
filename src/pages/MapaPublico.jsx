@@ -110,7 +110,11 @@ export default function MapaPublico() {
     <div className={`relative flex h-full w-full ${painelAberto ? 'flex-col sm:flex-row' : ''}`}>
       {barraEl && createPortal(barra, barraEl)}
 
-      <div className="relative min-h-0 flex-1">
+      <div
+        className={`relative min-h-0 ${
+          painelAberto && lote ? 'h-32 shrink-0 sm:h-auto sm:flex-1' : 'flex-1'
+        }`}
+      >
         {modo === 'digital' ? (
           <MapaDigital cidade={cidade} loteSelecionado={lote?.lote_id ?? null} aoSelecionar={aoSelecionarNaLista} />
         ) : (
@@ -128,8 +132,8 @@ export default function MapaPublico() {
 
       {painelAberto && (
         <div
-          className={`relative shrink-0 overflow-hidden border-t bg-white transition-[height] duration-300 sm:h-full sm:w-96 sm:border-l sm:border-t-0 ${
-            lote ? 'h-[85vh]' : 'h-64'
+          className={`relative min-h-0 overflow-hidden border-t bg-white sm:h-full sm:w-96 sm:flex-none sm:border-l sm:border-t-0 ${
+            lote ? 'flex-1' : 'h-64 shrink-0'
           }`}
         >
           <button

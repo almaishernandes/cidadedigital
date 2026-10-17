@@ -127,7 +127,11 @@ export default function MapaPublico() {
       </div>
 
       {painelAberto && (
-        <div className="relative h-64 shrink-0 overflow-hidden border-t bg-white sm:h-full sm:w-96 sm:border-l sm:border-t-0">
+        <div
+          className={`relative shrink-0 overflow-hidden border-t bg-white transition-[height] duration-300 sm:h-full sm:w-96 sm:border-l sm:border-t-0 ${
+            lote ? 'h-[85vh]' : 'h-64'
+          }`}
+        >
           <button
             onClick={() => setPainelAberto(false)}
             title="Ocultar painel (ver mapa inteiro)"

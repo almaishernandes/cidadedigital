@@ -242,7 +242,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
                     <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
                       {v.numero_licenca}
                     </span>
-                    <span className="flex-1">{rotuloUnidade(v)}</span>
+                    <span className="flex-1 truncate">{rotuloUnidade(v)}</span>
                     {v.categoria && <span className="text-xs text-slate-400">{v.categoria}</span>}
                   </button>
                 </li>

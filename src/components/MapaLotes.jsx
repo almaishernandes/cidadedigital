@@ -100,7 +100,7 @@ function aplicarVisibilidadeRuas(map, somenteRuas) {
 function paraPontos(fc) {
   return {
     type: 'FeatureCollection',
-    features: fc.features.flatMap((f) => {
+    features: (fc.features ?? []).flatMap((f) => {
       if (!f.geometry || !f.geometry.coordinates?.length) return [];
       try {
         return [

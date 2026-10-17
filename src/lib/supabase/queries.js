@@ -18,7 +18,7 @@ export async function buscarLotesGeoJSON({ cidade, oeste, sul, leste, norte }) {
     p_norte: norte,
   });
   if (error) throw error;
-  return data ?? { type: 'FeatureCollection', features: [] };
+  return { type: 'FeatureCollection', features: data?.features ?? [] };
 }
 
 /** Lista de vitrines ativas de uma cidade, para o painel do mapa virtual. */

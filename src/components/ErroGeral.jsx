@@ -20,7 +20,7 @@ export default class ErroGeral extends Component {
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-6 text-center">
         <p className="text-lg font-semibold text-slate-800">Algo deu errado.</p>
         <p className="text-sm text-slate-500">
-          Tenta recarregar a página. Se continuar, avisa o suporte.
+          Tenta recarregar a página. Se continuar, manda um print desta tela pro suporte.
         </p>
         <button
           onClick={() => window.location.reload()}
@@ -28,6 +28,9 @@ export default class ErroGeral extends Component {
         >
           Recarregar
         </button>
+        <pre className="mt-4 max-w-full overflow-auto whitespace-pre-wrap rounded-lg bg-slate-100 p-3 text-left text-xs text-slate-600">
+          {String(this.state.erro?.stack || this.state.erro?.message || this.state.erro)}
+        </pre>
       </div>
     );
   }

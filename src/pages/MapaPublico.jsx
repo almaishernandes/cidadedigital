@@ -1,6 +1,13 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Map as MapIcon, Radar, PanelRightClose, PanelRightOpen, ChevronRight } from 'lucide-react';
+import {
+  Map as MapIcon,
+  Radar,
+  PanelRightClose,
+  PanelRightOpen,
+  ChevronRight,
+  Store,
+} from 'lucide-react';
 import MapaLotes from '../components/MapaLotes.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
@@ -16,12 +23,25 @@ const MODOS = [
   { chave: 'virtual', rotulo: 'Digital', Icone: Radar, cls: 'bg-indigo-600' },
 ];
 
+const CHAVE_CIDADE_SALVA = 'cidadeDigital.ultimaCidade';
+
+function cidadeInicial() {
+  try {
+    const salva = localStorage.getItem(CHAVE_CIDADE_SALVA);
+    if (salva && CIDADES[salva]) return salva;
+  } catch {
+    // localStorage indisponível (modo privado etc.) — segue com o padrão.
+  }
+  return 'Osvaldo Cruz';
+}
+
 export default function MapaPublico() {
-  const [cidade, setCidade] = useState('Osvaldo Cruz');
+  const [cidade, setCidade] = useState(cidadeInicial);
   const [lote, setLote] = useState(null);
   const [modo, setModo] = useState('fisico'); // 'fisico' | 'virtual' | 'digital'
   const [voarPara, setVoarPara] = useState(null);
   const [painelAberto, setPainelAberto] = useState(true);
+  const [abaMobile, setAbaMobile] = useState('cidade'); // 'cidade' | 'vitrines' — só no celular
   const [barraEl, setBarraEl] = useState(null);
 
   // A barra de controles mora no cabeçalho do site (ver Layout.jsx), ao lado
@@ -32,7 +52,10 @@ export default function MapaPublico() {
 
   function aoSelecionarNoMapa(props) {
     setLote(props);
-    if (props) setPainelAberto(true);
+    if (props) {
+      setPainelAberto(true);
+      setAbaMobile('vitrines');
+    }
   }
 
   function aoSelecionarNaLista(v) {
@@ -65,8 +88,14 @@ export default function MapaPublico() {
       <select
         value={cidade}
         onChange={(e) => {
-          setCidade(e.target.value);
+          const nova = e.target.value;
+          setCidade(nova);
           setLote(null);
+          try {
+            localStorage.setItem(CHAVE_CIDADE_SALVA, nova);
+          } catch {
+            // ignora se localStorage não estiver disponível
+          }
         }}
         className="w-28 shrink-0 rounded border px-2 py-1 text-sm sm:w-auto"
       >
@@ -89,7 +118,7 @@ export default function MapaPublico() {
       </div>
       <button
         onClick={() => setPainelAberto((v) => !v)}
-        className="shrink-0 rounded-full border p-1.5 text-slate-600 hover:bg-slate-50"
+        className="hidden shrink-0 rounded-full border p-1.5 text-slate-600 hover:bg-slate-50 sm:block"
         title={painelAberto ? 'Ocultar painel' : 'Mostrar painel'}
       >
         {painelAberto ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
@@ -98,12 +127,12 @@ export default function MapaPublico() {
   );
 
   return (
-    <div className={`relative flex h-full w-full ${painelAberto ? 'flex-col sm:flex-row' : ''}`}>
+    <div className="relative flex h-full w-full flex-col sm:flex-row">
       {barraEl && createPortal(barra, barraEl)}
 
       <div
-        className={`relative min-h-0 ${
-          painelAberto && lote ? 'h-32 shrink-0 sm:h-auto sm:flex-1' : 'flex-1'
+        className={`relative min-h-0 sm:flex-1 ${
+          abaMobile === 'cidade' ? 'flex-1' : 'h-0 shrink-0 overflow-hidden'
         }`}
       >
         <MapaLotes
@@ -117,43 +146,67 @@ export default function MapaPublico() {
         />
       </div>
 
-      {painelAberto && (
+      <div
+        className={`relative min-h-0 overflow-hidden border-t bg-white ${
+          abaMobile === 'vitrines' ? 'flex-1' : 'h-0 shrink-0 overflow-hidden'
+        } ${
+          painelAberto
+            ? 'sm:flex sm:h-full sm:w-96 sm:flex-none sm:border-l sm:border-t-0'
+            : 'sm:hidden'
+        }`}
+      >
+        <button
+          onClick={() => setPainelAberto(false)}
+          title="Ocultar painel (ver mapa inteiro)"
+          className="absolute -left-3 top-1/2 z-30 hidden -translate-y-1/2 rounded-full border bg-white p-1 text-slate-500 shadow hover:bg-slate-100 sm:block"
+        >
+          <ChevronRight size={16} />
+        </button>
+
+        {/* Tela 1: lista — desliza pra fora (esquerda) quando um espaço é selecionado */}
         <div
-          className={`relative min-h-0 overflow-hidden border-t bg-white sm:h-full sm:w-96 sm:flex-none sm:border-l sm:border-t-0 ${
-            lote ? 'flex-1' : 'h-64 shrink-0'
+          className={`absolute inset-0 transition-transform duration-300 ease-out ${
+            lote ? '-translate-x-full' : 'translate-x-0'
           }`}
         >
-          <button
-            onClick={() => setPainelAberto(false)}
-            title="Ocultar painel (ver mapa inteiro)"
-            className="absolute -left-3 top-1/2 z-30 hidden -translate-y-1/2 rounded-full border bg-white p-1 text-slate-500 shadow hover:bg-slate-100 sm:block"
-          >
-            <ChevronRight size={16} />
-          </button>
-
-          {/* Tela 1: lista — desliza pra fora (esquerda) quando um espaço é selecionado */}
-          <div
-            className={`absolute inset-0 transition-transform duration-300 ease-out ${
-              lote ? '-translate-x-full' : 'translate-x-0'
-            }`}
-          >
-            {modo === 'fisico' ? (
-              <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
-            ) : (
-              <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
-            )}
-          </div>
-
-          {/* Tela 2: detalhes — entra deslizando da direita */}
-          <div
-            className={`absolute inset-0 transition-transform duration-300 ease-out ${
-              lote ? 'translate-x-0' : 'translate-x-full'
-            }`}
-          >
-            <PainelLote lote={lote} aoFechar={() => setLote(null)} inline />
-          </div>
+          {modo === 'fisico' ? (
+            <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+          ) : (
+            <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+          )}
         </div>
-      )}
+
+        {/* Tela 2: detalhes — entra deslizando da direita */}
+        <div
+          className={`absolute inset-0 transition-transform duration-300 ease-out ${
+            lote ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <PainelLote lote={lote} aoFechar={() => setLote(null)} inline />
+        </div>
+      </div>
+
+      {/* Abas no rodapé — só no celular; no desktop o painel fica sempre ao lado. */}
+      <nav className="flex shrink-0 border-t bg-white sm:hidden">
+        <button
+          onClick={() => setAbaMobile('cidade')}
+          className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium ${
+            abaMobile === 'cidade' ? 'text-blue-600' : 'text-slate-500'
+          }`}
+        >
+          <MapIcon size={18} />
+          Cidade
+        </button>
+        <button
+          onClick={() => setAbaMobile('vitrines')}
+          className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium ${
+            abaMobile === 'vitrines' ? 'text-blue-600' : 'text-slate-500'
+          }`}
+        >
+          <Store size={18} />
+          Vitrines
+        </button>
+      </nav>
     </div>
   );
 }

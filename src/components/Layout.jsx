@@ -62,7 +62,7 @@ export default function Layout() {
         </NavLink>
 
         {/* Controles contextuais da página atual (ex.: cidade/modo do mapa) */}
-        <div id="barra-contextual" className="flex shrink-0 items-center gap-2" />
+        <div id="barra-contextual" className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none" />
 
         <div className="ml-auto hidden shrink-0 items-center gap-2 text-sm sm:flex sm:gap-3">
           {usuario ? (

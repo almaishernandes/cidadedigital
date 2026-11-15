@@ -97,7 +97,7 @@ export default function MapaPublico() {
             // ignora se localStorage não estiver disponível
           }
         }}
-        className="w-28 shrink-0 rounded border px-2 py-1 text-sm sm:w-auto"
+        className="min-w-0 flex-1 rounded border px-2 py-1 text-sm sm:w-auto sm:flex-none"
       >
         {Object.keys(CIDADES).map((c) => (
           <option key={c}>{c}</option>

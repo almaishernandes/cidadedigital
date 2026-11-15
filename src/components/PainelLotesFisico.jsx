@@ -4,8 +4,6 @@ import { buscarLotesCidade } from '../lib/supabase/queries.js';
 import { STATUS_MAPA } from './StatusBadge.jsx';
 
 const ABAS = [
-  { chave: 'todos', rotulo: 'Todos', cor: null },
-  { chave: 'oportunidade', rotulo: 'Disponível', cor: STATUS_MAPA.oportunidade.cor },
   { chave: 'ocupado', rotulo: 'Comercial', cor: STATUS_MAPA.ocupado.cor },
   { chave: 'residencial', rotulo: 'Residencial', cor: STATUS_MAPA.residencial.cor },
   { chave: 'publico', rotulo: 'Público', cor: STATUS_MAPA.publico.cor },
@@ -14,7 +12,7 @@ const ABAS = [
 export default function PainelLotesFisico({ cidade, loteSelecionado, aoSelecionar }) {
   const [lotes, setLotes] = useState([]);
   const [termo, setTermo] = useState('');
-  const [aba, setAba] = useState('todos');
+  const [aba, setAba] = useState('todos'); // 'todos' | uma das ABAS — nenhum filtro ativo mostra tudo
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
@@ -46,7 +44,7 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
   return (
     <aside className="flex h-full w-full flex-col bg-white">
       <div className="border-b p-3">
-        <h2 className="mb-2 flex items-center gap-1.5 font-semibold">
+        <h2 className="mb-2 hidden items-center gap-1.5 font-semibold sm:flex">
           <LayoutGrid size={16} /> Vitrines em {cidade}
         </h2>
 
@@ -64,17 +62,15 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
           {ABAS.map((a) => (
             <button
               key={a.chave}
-              onClick={() => setAba(a.chave)}
+              onClick={() => setAba((atual) => (atual === a.chave ? 'todos' : a.chave))}
               className={`inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs ${
                 aba === a.chave ? 'bg-slate-800 text-white' : 'border text-slate-600'
               }`}
             >
-              {a.cor && (
-                <span
-                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ backgroundColor: a.cor }}
-                />
-              )}
+              <span
+                className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                style={{ backgroundColor: a.cor }}
+              />
               {a.rotulo}
             </button>
           ))}

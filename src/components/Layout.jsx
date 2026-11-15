@@ -25,7 +25,7 @@ export default function Layout() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex flex-nowrap items-center gap-2 overflow-x-auto border-b bg-white px-3 py-2 sm:px-4">
+      <header className="flex flex-nowrap items-center gap-2 border-b bg-white px-3 py-2 sm:overflow-x-auto sm:px-4">
         <Link to="/" className="hidden shrink-0 items-center gap-2 font-semibold sm:flex">
           <MapPinned size={18} className="text-blue-600" />
           <span className="hidden sm:inline">Cidade Digital</span>

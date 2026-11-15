@@ -189,13 +189,28 @@ export default function MapaPublico() {
       {/* Abas no rodapé — só no celular; no desktop o painel fica sempre ao lado. */}
       <nav className="flex shrink-0 border-t bg-white sm:hidden">
         <button
-          onClick={() => setAbaMobile('cidade')}
+          onClick={() => {
+            setModo('fisico');
+            setAbaMobile('cidade');
+          }}
           className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium ${
-            abaMobile === 'cidade' ? 'text-blue-600' : 'text-slate-500'
+            abaMobile === 'cidade' && modo === 'fisico' ? 'text-blue-600' : 'text-slate-500'
           }`}
         >
           <MapIcon size={18} />
-          Cidade
+          Físico
+        </button>
+        <button
+          onClick={() => {
+            setModo('virtual');
+            setAbaMobile('cidade');
+          }}
+          className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-xs font-medium ${
+            abaMobile === 'cidade' && modo === 'virtual' ? 'text-blue-600' : 'text-slate-500'
+          }`}
+        >
+          <Radar size={18} />
+          Digital
         </button>
         <button
           onClick={() => setAbaMobile('vitrines')}

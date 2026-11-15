@@ -4,11 +4,11 @@ import { buscarLotesCidade } from '../lib/supabase/queries.js';
 import { STATUS_MAPA } from './StatusBadge.jsx';
 
 const ABAS = [
-  { chave: 'todos', rotulo: 'Todos' },
-  { chave: 'oportunidade', rotulo: 'Disponível' },
-  { chave: 'ocupado', rotulo: 'Comercial' },
-  { chave: 'residencial', rotulo: 'Residencial' },
-  { chave: 'publico', rotulo: 'Público' },
+  { chave: 'todos', rotulo: 'Todos', cor: null },
+  { chave: 'oportunidade', rotulo: 'Disponível', cor: STATUS_MAPA.oportunidade.cor },
+  { chave: 'ocupado', rotulo: 'Comercial', cor: STATUS_MAPA.ocupado.cor },
+  { chave: 'residencial', rotulo: 'Residencial', cor: STATUS_MAPA.residencial.cor },
+  { chave: 'publico', rotulo: 'Público', cor: STATUS_MAPA.publico.cor },
 ];
 
 export default function PainelLotesFisico({ cidade, loteSelecionado, aoSelecionar }) {
@@ -50,15 +50,6 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
           <LayoutGrid size={16} /> Vitrines em {cidade}
         </h2>
 
-        <div className="mb-2 space-y-1 rounded-lg bg-slate-50 p-2 text-xs">
-          {Object.entries(STATUS_MAPA).map(([k, v]) => (
-            <div key={k} className="flex items-center gap-2">
-              <span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: v.cor }} />
-              {v.rotulo}
-            </div>
-          ))}
-        </div>
-
         <div className="relative mb-2">
           <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -69,15 +60,21 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
           />
         </div>
 
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-1">
           {ABAS.map((a) => (
             <button
               key={a.chave}
               onClick={() => setAba(a.chave)}
-              className={`rounded px-2 py-1 text-xs ${
+              className={`inline-flex items-center gap-1.5 rounded px-2 py-1 text-xs ${
                 aba === a.chave ? 'bg-slate-800 text-white' : 'border text-slate-600'
               }`}
             >
+              {a.cor && (
+                <span
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: a.cor }}
+                />
+              )}
               {a.rotulo}
             </button>
           ))}

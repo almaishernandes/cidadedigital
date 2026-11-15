@@ -103,7 +103,7 @@ export default function MapaPublico() {
           <option key={c}>{c}</option>
         ))}
       </select>
-      <div className="flex shrink-0 overflow-hidden whitespace-nowrap rounded-full border text-xs">
+      <div className="hidden shrink-0 overflow-hidden whitespace-nowrap rounded-full border text-xs sm:flex">
         {MODOS.map(({ chave, rotulo, Icone, cls }) => (
           <button
             key={chave}

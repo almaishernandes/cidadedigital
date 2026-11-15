@@ -17,12 +17,12 @@ export default function Layout() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b bg-white px-3 py-2 sm:px-4">
-        <Link to="/" className="flex items-center gap-2 font-semibold">
+      <header className="flex flex-nowrap items-center gap-2 overflow-x-auto border-b bg-white px-3 py-2 sm:px-4">
+        <Link to="/" className="flex shrink-0 items-center gap-2 font-semibold">
           <MapPinned size={18} className="text-blue-600" />
           <span className="hidden sm:inline">Cidade Digital</span>
         </Link>
-        <nav className="flex items-center gap-1 overflow-x-auto sm:ml-4">
+        <nav className="flex shrink-0 items-center gap-1">
           {usuario && (
             <NavLink to="/painel" className={linkCls}>
               <span className="inline-flex items-center gap-1">
@@ -50,9 +50,9 @@ export default function Layout() {
         </nav>
 
         {/* Controles contextuais da página atual (ex.: cidade/modo do mapa) */}
-        <div id="barra-contextual" className="flex items-center gap-2" />
+        <div id="barra-contextual" className="flex shrink-0 items-center gap-2" />
 
-        <div className="ml-auto flex items-center gap-2 text-sm sm:gap-3">
+        <div className="ml-auto flex shrink-0 items-center gap-2 text-sm sm:gap-3">
           {usuario ? (
             <>
               <span className="hidden max-w-[16rem] truncate text-slate-500 sm:inline">
@@ -74,7 +74,7 @@ export default function Layout() {
               </button>
             </>
           ) : (
-            <Link to="/entrar" className="rounded bg-blue-600 px-3 py-1.5 text-white">
+            <Link to="/entrar" className="shrink-0 rounded bg-blue-600 px-3 py-1.5 text-white">
               Entrar
             </Link>
           )}

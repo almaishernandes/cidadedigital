@@ -1,15 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  Map as MapIcon,
-  Radar,
-  Grid3x3,
-  PanelRightClose,
-  PanelRightOpen,
-  ChevronRight,
-} from 'lucide-react';
+import { Map as MapIcon, Radar, PanelRightClose, PanelRightOpen, ChevronRight } from 'lucide-react';
 import MapaLotes from '../components/MapaLotes.jsx';
-import MapaDigital from '../components/MapaDigital.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
 import PainelLotesFisico from '../components/PainelLotesFisico.jsx';
@@ -21,8 +13,7 @@ const CIDADES = {
 
 const MODOS = [
   { chave: 'fisico', rotulo: 'Físico', Icone: MapIcon, cls: 'bg-blue-600' },
-  { chave: 'virtual', rotulo: 'Virtual', Icone: Radar, cls: 'bg-indigo-600' },
-  { chave: 'digital', rotulo: 'Digital', Icone: Grid3x3, cls: 'bg-slate-800' },
+  { chave: 'virtual', rotulo: 'Digital', Icone: Radar, cls: 'bg-indigo-600' },
 ];
 
 export default function MapaPublico() {
@@ -58,8 +49,8 @@ export default function MapaPublico() {
       total_vitrines: v.total_vitrines,
       // lotes_cidade (lista do físico) traz total_vitrines: é o lote, pode ter
       // várias unidades, então mostra o seletor de andar/sala quando houver
-      // mais de uma. vitrines_cidade (grade digital, lista virtual) já é a
-      // vitrine exata escolhida — vai direto pra ela.
+      // mais de uma. vitrines_cidade (lista do modo Digital) já é a vitrine
+      // exata escolhida — vai direto pra ela.
       selecaoEspecifica: v.total_vitrines === undefined,
       latitude: v.latitude ?? null,
       longitude: v.longitude ?? null,
@@ -77,13 +68,13 @@ export default function MapaPublico() {
           setCidade(e.target.value);
           setLote(null);
         }}
-        className="rounded border px-2 py-1 text-sm"
+        className="w-28 shrink-0 rounded border px-2 py-1 text-sm sm:w-auto"
       >
         {Object.keys(CIDADES).map((c) => (
           <option key={c}>{c}</option>
         ))}
       </select>
-      <div className="flex overflow-hidden rounded-full border text-xs">
+      <div className="flex shrink-0 overflow-hidden whitespace-nowrap rounded-full border text-xs">
         {MODOS.map(({ chave, rotulo, Icone, cls }) => (
           <button
             key={chave}
@@ -98,7 +89,7 @@ export default function MapaPublico() {
       </div>
       <button
         onClick={() => setPainelAberto((v) => !v)}
-        className="rounded-full border p-1.5 text-slate-600 hover:bg-slate-50"
+        className="shrink-0 rounded-full border p-1.5 text-slate-600 hover:bg-slate-50"
         title={painelAberto ? 'Ocultar painel' : 'Mostrar painel'}
       >
         {painelAberto ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
@@ -115,19 +106,15 @@ export default function MapaPublico() {
           painelAberto && lote ? 'h-32 shrink-0 sm:h-auto sm:flex-1' : 'flex-1'
         }`}
       >
-        {modo === 'digital' ? (
-          <MapaDigital cidade={cidade} loteSelecionado={lote?.lote_id ?? null} aoSelecionar={aoSelecionarNaLista} />
-        ) : (
-          <MapaLotes
-            key={cidade}
-            cidade={cidade}
-            viewInicial={CIDADES[cidade]}
-            loteSelecionado={lote?.lote_id ?? null}
-            onSelecionarLote={aoSelecionarNoMapa}
-            modo={modo}
-            voarPara={voarPara}
-          />
-        )}
+        <MapaLotes
+          key={cidade}
+          cidade={cidade}
+          viewInicial={CIDADES[cidade]}
+          loteSelecionado={lote?.lote_id ?? null}
+          onSelecionarLote={aoSelecionarNoMapa}
+          modo={modo}
+          voarPara={voarPara}
+        />
       </div>
 
       {painelAberto && (

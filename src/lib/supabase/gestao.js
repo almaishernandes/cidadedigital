@@ -8,7 +8,7 @@ export async function minhasLicencas() {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, andar, sala, data_inicio, data_fim, observacao,
-       lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, status_ocupacao, latitude, longitude ),
+       lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, status_ocupacao, latitude, longitude, nome_lote, numero_lote ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,
          instagram_url, website_url, ecommerce_url, logo_url, horarios
@@ -71,7 +71,10 @@ export async function atualizarCepLote(loteId, cep, { endereco, bairro } = {}) {
 }
 
 /** Grava rua, número, bairro e complemento sem mexer na posição/geometria do lote. */
-export async function atualizarEnderecoTextoLote(loteId, { endereco, numero, bairro, complemento, cep }) {
+export async function atualizarEnderecoTextoLote(
+  loteId,
+  { endereco, numero, bairro, complemento, cep, nomeLote, numeroLote }
+) {
   const { error } = await supabase.rpc('atualizar_endereco_texto_lote', {
     p_lote_id: loteId,
     p_endereco: endereco,
@@ -79,6 +82,8 @@ export async function atualizarEnderecoTextoLote(loteId, { endereco, numero, bai
     p_bairro: bairro || null,
     p_complemento: complemento || null,
     p_cep: cep || null,
+    p_nome_lote: nomeLote || null,
+    p_numero_lote: numeroLote || null,
   });
   if (error) throw error;
 }
@@ -221,7 +226,7 @@ export async function licencasPorStatus(status = 'pendente') {
     .from('licencas')
     .select(
       `id, status, tipo, numero_licenca, andar, sala, data_inicio, data_fim, observacao, criado_em,
-       lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, latitude, longitude ),
+       lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, latitude, longitude, nome_lote, numero_lote ),
        perfil:perfis ( id, nome, email, telefone ),
        estabelecimento:estabelecimentos (
          id, nome_fantasia, categoria, descricao, telefone_whatsapp,

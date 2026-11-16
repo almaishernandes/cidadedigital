@@ -421,6 +421,8 @@ export default function PainelComerciante() {
                 numeroInicial={sel.lote.numero}
                 bairroInicial={sel.lote.bairro}
                 complementoInicial={sel.lote.complemento}
+                nomeLoteInicial={sel.lote.nome_lote}
+                numeroLoteInicial={sel.lote.numero_lote}
                 cepInicial={sel.lote.cep}
                 latInicial={sel.lote.latitude}
                 lngInicial={sel.lote.longitude}

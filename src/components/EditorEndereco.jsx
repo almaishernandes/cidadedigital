@@ -44,6 +44,8 @@ export default function EditorEndereco({
   numeroInicial,
   bairroInicial,
   complementoInicial,
+  nomeLoteInicial,
+  numeroLoteInicial,
   cepInicial,
   latInicial,
   lngInicial,
@@ -55,6 +57,8 @@ export default function EditorEndereco({
   const [numero, setNumero] = useState(numeroInicial ?? '');
   const [bairro, setBairro] = useState(bairroInicial ?? '');
   const [complemento, setComplemento] = useState(complementoInicial ?? '');
+  const [nomeLote, setNomeLote] = useState(nomeLoteInicial ?? '');
+  const [numeroLote, setNumeroLote] = useState(numeroLoteInicial ?? '');
   const [localidadeCep, setLocalidadeCep] = useState(null); // { cidade, uf } vindos do CEP
   const [lat, setLat] = useState(latInicial != null ? String(latInicial) : '');
   const [lng, setLng] = useState(lngInicial != null ? String(lngInicial) : '');
@@ -70,7 +74,15 @@ export default function EditorEndereco({
     setErro(null);
     setSalvandoTexto(true);
     try {
-      await atualizarEnderecoTextoLote(loteId, { endereco, numero, bairro, complemento, cep });
+      await atualizarEnderecoTextoLote(loteId, {
+        endereco,
+        numero,
+        bairro,
+        complemento,
+        cep,
+        nomeLote,
+        numeroLote,
+      });
       aoSalvar?.();
     } catch (err) {
       setErro(err.message);
@@ -233,6 +245,21 @@ export default function EditorEndereco({
             {localidadeCep.cidade}/{localidadeCep.uf}
           </span>
         )}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <input
+          className="w-40 rounded border px-2 py-1.5 text-sm"
+          placeholder="Nome do lote (interno)"
+          value={nomeLote}
+          onChange={(e) => setNomeLote(e.target.value)}
+        />
+        <input
+          className="w-40 rounded border px-2 py-1.5 text-sm"
+          placeholder="Número do lote (interno)"
+          value={numeroLote}
+          onChange={(e) => setNumeroLote(e.target.value)}
+        />
         <button
           type="button"
           onClick={gravarDadosInformados}

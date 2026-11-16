@@ -203,6 +203,8 @@ export default function AdminLicencas() {
                   numeroInicial={l.lote.numero}
                   bairroInicial={l.lote.bairro}
                   complementoInicial={l.lote.complemento}
+                  nomeLoteInicial={l.lote.nome_lote}
+                  numeroLoteInicial={l.lote.numero_lote}
                   cepInicial={l.lote.cep}
                   latInicial={l.lote.latitude}
                   lngInicial={l.lote.longitude}

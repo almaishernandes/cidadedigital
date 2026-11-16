@@ -7,6 +7,37 @@ import {
   atualizarEnderecoTextoLote,
 } from '../lib/supabase/gestao.js';
 
+// Aceita decimal ("-21.7969") ou graus/minutos/segundos ("21°47'31.9\"S"),
+// que é o formato que o Google Maps copia pro clipboard.
+function parseCoordenada(txt) {
+  const s = String(txt).trim();
+  const dms = s.match(/(\d+(?:[.,]\d+)?)\s*°\s*(\d+(?:[.,]\d+)?)?\s*'?\s*(\d+(?:[.,]\d+)?)?\s*"?\s*([NSEWnsew])?/);
+  if (dms && s.includes('°')) {
+    const graus = Number(dms[1].replace(',', '.'));
+    const min = Number((dms[2] ?? '0').replace(',', '.'));
+    const seg = Number((dms[3] ?? '0').replace(',', '.'));
+    const direcao = (dms[4] ?? '').toUpperCase();
+    let valor = graus + min / 60 + seg / 3600;
+    if (direcao === 'S' || direcao === 'W') valor = -valor;
+    return valor;
+  }
+  return Number(s.replace(',', '.'));
+}
+
+// Quando cola "21°47'31.9"S 50°5'46.9"W" (copiado do Google Maps) num só campo,
+// separa automaticamente em latitude e longitude.
+function separarParCoordenadas(txt) {
+  const partes = String(txt).match(/\d+°[^°]*?[NSEWnsew]/g);
+  if (partes && partes.length >= 2) {
+    return { lat: partes[0].trim(), lng: partes[1].trim() };
+  }
+  const porVirgula = String(txt).split(',');
+  if (porVirgula.length === 2 && !txt.includes('°')) {
+    return { lat: porVirgula[0].trim(), lng: porVirgula[1].trim() };
+  }
+  return null;
+}
+
 export default function EditorEndereco({
   loteId,
   enderecoInicial,
@@ -108,10 +139,12 @@ export default function EditorEndereco({
   function usarCoordenadas(e) {
     e.preventDefault();
     setErro(null);
-    const latN = Number(String(lat).replace(',', '.'));
-    const lngN = Number(String(lng).replace(',', '.'));
+    const latN = parseCoordenada(lat);
+    const lngN = parseCoordenada(lng);
     if (!Number.isFinite(latN) || !Number.isFinite(lngN) || latN === 0 || lngN === 0) {
-      setErro('Informe latitude e longitude válidas (ex.: -21.7969, -50.8778).');
+      setErro(
+        'Informe latitude e longitude válidas: decimal (ex.: -21.7969, -50.8778) ou no formato do Google Maps (ex.: 21°47\'31.9"S).'
+      );
       return;
     }
     if (!endereco.trim()) {
@@ -214,21 +247,37 @@ export default function EditorEndereco({
         <label className="text-sm">
           <span className="mb-1 block text-slate-600">Latitude</span>
           <input
-            className="w-32 rounded border px-2 py-1.5 text-sm"
+            className="w-40 rounded border px-2 py-1.5 text-sm"
             placeholder="-21.7969"
             value={lat}
             onChange={(e) => setLat(e.target.value)}
-            inputMode="decimal"
+            onPaste={(e) => {
+              const colado = e.clipboardData.getData('text');
+              const par = separarParCoordenadas(colado);
+              if (par) {
+                e.preventDefault();
+                setLat(par.lat);
+                setLng(par.lng);
+              }
+            }}
           />
         </label>
         <label className="text-sm">
           <span className="mb-1 block text-slate-600">Longitude</span>
           <input
-            className="w-32 rounded border px-2 py-1.5 text-sm"
+            className="w-40 rounded border px-2 py-1.5 text-sm"
             placeholder="-50.8778"
             value={lng}
             onChange={(e) => setLng(e.target.value)}
-            inputMode="decimal"
+            onPaste={(e) => {
+              const colado = e.clipboardData.getData('text');
+              const par = separarParCoordenadas(colado);
+              if (par) {
+                e.preventDefault();
+                setLat(par.lat);
+                setLng(par.lng);
+              }
+            }}
           />
         </label>
         <button className="inline-flex items-center gap-1 rounded border px-3 py-1.5 text-sm">

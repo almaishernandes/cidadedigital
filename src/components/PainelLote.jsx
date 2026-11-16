@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Search, FileText, Check, Eye } from 'lucide-react';
+import { X, Phone, Instagram, Globe, ExternalLink, MapPin, Box, Map, Search, FileText, Check, Eye } from 'lucide-react';
 import StatusBadge from './StatusBadge.jsx';
 import {
   buscarEstabelecimentoPorLote,
@@ -7,6 +7,7 @@ import {
   buscarVitrinesDoLote,
   linkWhatsApp,
   linkGoogleEarth3D,
+  linkGoogleMaps,
 } from '../lib/supabase/queries.js';
 import { criarCotacao } from '../lib/supabase/gestao.js';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
@@ -167,14 +168,24 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
               </span>
             )}
             {lote.latitude != null && lote.longitude != null && (
-              <a
-                className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-700"
-                href={linkGoogleEarth3D(lote.latitude, lote.longitude)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Box size={14} /> Ver em 3D
-              </a>
+              <>
+                <a
+                  className="inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-green-700"
+                  href={linkGoogleEarth3D(lote.latitude, lote.longitude)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Box size={14} /> Ver no Google Earth
+                </a>
+                <a
+                  className="inline-flex items-center gap-1 rounded-full bg-blue-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-700"
+                  href={linkGoogleMaps(lote.latitude, lote.longitude)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Map size={14} /> Ver no Google Maps
+                </a>
+              </>
             )}
           </div>
           <h2 className="text-lg font-semibold leading-tight">

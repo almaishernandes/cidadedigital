@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ShieldCheck, Check, Ban, MapPin, Box, Store, Trash2 } from 'lucide-react';
+import { ShieldCheck, Check, Ban, MapPin, Box, Map, Store, Trash2 } from 'lucide-react';
 import {
   licencasPorStatus,
   ativarLicenca,
   expirarLicenca,
   excluirEstabelecimento,
 } from '../lib/supabase/gestao.js';
-import { linkGoogleEarth3D } from '../lib/supabase/queries.js';
+import { linkGoogleEarth3D, linkGoogleMaps } from '../lib/supabase/queries.js';
 import EditorEndereco from '../components/EditorEndereco.jsx';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
 import EditorProdutos from '../components/EditorProdutos.jsx';
@@ -117,14 +117,24 @@ export default function AdminLicencas() {
                     </span>
                   )}
                   {l.lote?.latitude != null && l.lote?.longitude != null && (
-                    <a
-                      className="mr-1.5 inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 align-middle text-xs font-medium text-white hover:bg-green-700"
-                      href={linkGoogleEarth3D(l.lote.latitude, l.lote.longitude)}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <Box size={14} /> Ver em 3D
-                    </a>
+                    <>
+                      <a
+                        className="mr-1.5 inline-flex items-center gap-1 rounded-full bg-green-600 px-2.5 py-1 align-middle text-xs font-medium text-white hover:bg-green-700"
+                        href={linkGoogleEarth3D(l.lote.latitude, l.lote.longitude)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Box size={14} /> Ver no Google Earth
+                      </a>
+                      <a
+                        className="mr-1.5 inline-flex items-center gap-1 rounded-full bg-blue-600 px-2.5 py-1 align-middle text-xs font-medium text-white hover:bg-blue-700"
+                        href={linkGoogleMaps(l.lote.latitude, l.lote.longitude)}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <Map size={14} /> Ver no Google Maps
+                      </a>
+                    </>
                   )}
                   {l.lote?.endereco}
                   {l.lote?.numero ? `, ${l.lote.numero}` : ''}

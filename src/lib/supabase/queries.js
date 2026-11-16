@@ -79,7 +79,12 @@ export function linkWhatsApp(telefone, mensagem) {
   return `https://wa.me/${num}?text=${texto}`;
 }
 
-/** Abre o Google Earth Web já com a câmera inclinada, pra ver o prédio em 3D. */
+/** Abre o Google Earth Web direto na localização (sem busca, sem câmera 3D). */
 export function linkGoogleEarth3D(lat, lng) {
-  return `https://earth.google.com/web/@${lat},${lng},0a,300d,35y,0h,60t,0r`;
+  return `https://earth.google.com/web/@${lat},${lng},300a,0h,0t,0r`;
+}
+
+/** Abre o Google Maps direto na localização (pino, sem busca). */
+export function linkGoogleMaps(lat, lng) {
+  return `https://www.google.com/maps?q=${lat},${lng}`;
 }

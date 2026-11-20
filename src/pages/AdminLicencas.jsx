@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ShieldCheck, Check, Ban, MapPin, Box, Map, Store, Trash2 } from 'lucide-react';
+import { ShieldCheck, Check, Ban, MapPin, Box, Map, Store, Trash2, Upload } from 'lucide-react';
 import {
   licencasPorStatus,
   ativarLicenca,
@@ -10,6 +10,7 @@ import { linkGoogleEarth3D, linkGoogleMaps } from '../lib/supabase/queries.js';
 import EditorEndereco from '../components/EditorEndereco.jsx';
 import EditorEstabelecimento from '../components/EditorEstabelecimento.jsx';
 import EditorProdutos from '../components/EditorProdutos.jsx';
+import ImportadorVitrines from '../components/ImportadorVitrines.jsx';
 
 const ABAS = ['pendente', 'ativa', 'expirada'];
 
@@ -26,6 +27,7 @@ export default function AdminLicencas() {
   const [ocupado, setOcupado] = useState(null);
   const [editandoEndereco, setEditandoEndereco] = useState(null);
   const [editandoVitrine, setEditandoVitrine] = useState(null);
+  const [importarAberto, setImportarAberto] = useState(false);
 
   const carregar = useCallback(async () => {
     setErro(null);
@@ -82,9 +84,26 @@ export default function AdminLicencas() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-4 p-6">
-      <h1 className="flex items-center gap-2 text-xl font-semibold">
-        <ShieldCheck size={20} /> Licenças digitais
+      <h1 className="flex items-center justify-between gap-2 text-xl font-semibold">
+        <span className="flex items-center gap-2">
+          <ShieldCheck size={20} /> Licenças digitais
+        </span>
+        <button
+          onClick={() => setImportarAberto((v) => !v)}
+          className="inline-flex items-center gap-1.5 rounded border px-3 py-1.5 text-sm font-normal text-slate-700 hover:bg-slate-50"
+        >
+          <Upload size={15} /> Importar vitrines (CSV)
+        </button>
       </h1>
+
+      {importarAberto && (
+        <ImportadorVitrines
+          aoImportar={() => {
+            setImportarAberto(false);
+            carregar();
+          }}
+        />
+      )}
 
       <div className="flex gap-1">
         {ABAS.map((a) => (

@@ -219,6 +219,35 @@ export async function removerProduto(id) {
   if (error) throw error;
 }
 
+// ---------- Suporte/admin: importação em massa (CSV) ----------
+
+/** Cria (ou reaproveita) lote + licença ativa + vitrine a partir de uma linha de CSV. Só admin. */
+export async function importarVitrinePublica({
+  cidade,
+  endereco,
+  numero,
+  cep,
+  lat,
+  lng,
+  nome,
+  categoria,
+  tipo = 'publica',
+}) {
+  const { data, error } = await supabase.rpc('importar_vitrine_publica', {
+    p_cidade: cidade,
+    p_endereco: endereco,
+    p_numero: numero || null,
+    p_cep: cep || null,
+    p_lat: lat,
+    p_lng: lng,
+    p_nome: nome,
+    p_categoria: categoria || null,
+    p_tipo: tipo,
+  });
+  if (error) throw error;
+  return data; // uuid do lote
+}
+
 // ---------- Admin ----------
 
 export async function licencasPorStatus(status = 'pendente') {

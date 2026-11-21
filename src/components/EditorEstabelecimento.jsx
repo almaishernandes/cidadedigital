@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { Save } from 'lucide-react';
 import { salvarEstabelecimento } from '../lib/supabase/gestao.js';
+import { categoriasDoTipo } from '../lib/categorias.js';
 
 const CAMPOS = [
   ['nome_fantasia', 'Nome fantasia', 'text', true],
-  ['categoria', 'Categoria', 'text'],
   ['telefone_whatsapp', 'WhatsApp (só números, com DDD)', 'text'],
   ['instagram_url', 'Instagram (URL)', 'url'],
   ['website_url', 'Site (URL)', 'url'],
@@ -12,7 +12,8 @@ const CAMPOS = [
   ['logo_url', 'Logo (URL da imagem)', 'url'],
 ];
 
-export default function EditorEstabelecimento({ licencaId, inicial, aoSalvar }) {
+export default function EditorEstabelecimento({ licencaId, tipo, inicial, aoSalvar }) {
+  const categorias = categoriasDoTipo(tipo);
   const [form, setForm] = useState(() => ({
     nome_fantasia: '',
     categoria: '',
@@ -24,6 +25,9 @@ export default function EditorEstabelecimento({ licencaId, inicial, aoSalvar }) 
     logo_url: '',
     ...inicial,
   }));
+  const [outraCategoria, setOutraCategoria] = useState(
+    () => !!inicial?.categoria && !categorias.includes(inicial.categoria)
+  );
   const [ocupado, setOcupado] = useState(false);
   const [erro, setErro] = useState(null);
 
@@ -60,6 +64,42 @@ export default function EditorEstabelecimento({ licencaId, inicial, aoSalvar }) 
           />
         </label>
       ))}
+      <label className="text-sm">
+        <span className="mb-1 block text-slate-600">Categoria</span>
+        {outraCategoria ? (
+          <input
+            type="text"
+            autoFocus
+            value={form.categoria ?? ''}
+            onChange={set('categoria')}
+            placeholder="Digite a categoria"
+            className="w-full rounded border px-3 py-2"
+          />
+        ) : (
+          <select
+            value={categorias.includes(form.categoria) ? form.categoria : ''}
+            onChange={(e) => {
+              if (e.target.value === '__outra__') {
+                setOutraCategoria(true);
+                setForm((f) => ({ ...f, categoria: '' }));
+              } else {
+                setForm((f) => ({ ...f, categoria: e.target.value }));
+              }
+            }}
+            className="w-full rounded border bg-white px-3 py-2"
+          >
+            <option value="" disabled>
+              Selecione...
+            </option>
+            {categorias.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+            <option value="__outra__">Outra...</option>
+          </select>
+        )}
+      </label>
       <label className="text-sm sm:col-span-2">
         <span className="mb-1 block text-slate-600">Descrição</span>
         <textarea

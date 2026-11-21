@@ -434,6 +434,7 @@ export default function PainelComerciante() {
                 <h2 className="mb-3 font-medium">Dados da vitrine</h2>
                 <EditorEstabelecimento
                   licencaId={sel.id}
+                  tipo={sel.tipo}
                   inicial={sel.estabelecimento ?? undefined}
                   aoSalvar={recarregar}
                 />

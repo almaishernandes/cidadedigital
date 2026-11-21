@@ -240,6 +240,7 @@ export default function AdminLicencas() {
               <div className="mt-3 space-y-4 rounded-lg border bg-slate-50 p-3">
                 <EditorEstabelecimento
                   licencaId={l.id}
+                  tipo={l.tipo}
                   inicial={l.estabelecimento ?? undefined}
                   aoSalvar={carregar}
                 />

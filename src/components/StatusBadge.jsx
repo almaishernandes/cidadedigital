@@ -3,8 +3,8 @@ import { Store, Home, Sparkles, Landmark } from 'lucide-react';
 export const STATUS_MAPA = {
   oportunidade: { rotulo: 'Disponível', cor: '#f59e0b', Icone: Sparkles },
   ocupado: { rotulo: 'Comercial', cor: '#2563eb', Icone: Store },
-  residencial: { rotulo: 'Residencial', cor: '#94a3b8', Icone: Home },
-  publico: { rotulo: 'Público', cor: '#7c3aed', Icone: Landmark },
+  residencial: { rotulo: 'Residencial', cor: '#6b7280', Icone: Home },
+  publico: { rotulo: 'Público', cor: '#16a34a', Icone: Landmark },
 };
 
 export default function StatusBadge({ status, rotulo }) {

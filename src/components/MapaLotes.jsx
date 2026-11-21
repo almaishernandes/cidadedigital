@@ -8,14 +8,21 @@ const STYLE_URL =
 
 const VAZIO = { type: 'FeatureCollection', features: [] };
 
-// Cor do polígono conforme status_vitrine calculado pelo RPC.
+// Cor do polígono conforme status_vitrine calculado pelo RPC — azul para
+// comercial, verde para público, cinza para residencial (e laranja para
+// lote ainda disponível/sem vitrine).
+const COR_COMERCIAL = '#2563eb';
+const COR_PUBLICO = '#16a34a';
+const COR_RESIDENCIAL = '#6b7280';
+
 const corPorStatus = [
   'match',
   ['get', 'status_vitrine'],
   'oportunidade', '#f59e0b',
-  'ocupado', '#2563eb',
-  'publico', '#7c3aed',
-  /* residencial / outros */ '#cbd5e1',
+  'ocupado', COR_COMERCIAL,
+  'publico', COR_PUBLICO,
+  'residencial', COR_RESIDENCIAL,
+  /* outros */ '#cbd5e1',
 ];
 
 const camadaPreenchimento = {
@@ -35,9 +42,12 @@ const camadaSelecionado = {
   filter: ['==', ['get', 'lote_id'], '__none__'],
 };
 
-// Pino numerado das licenças ativas — usado no Físico (sobre o lote) e no
-// Virtual (única marcação no mapa), com a mesma identidade visual.
+// Pino numerado das licenças ativas (comercial) — usado no Físico (sobre o
+// lote) e no Virtual (única marcação no mapa), com a mesma identidade visual:
+// círculo azul. Público usa quadrado verde, residencial usa triângulo cinza.
 const FILTRO_OCUPADO = ['==', ['get', 'status_vitrine'], 'ocupado'];
+const FILTRO_PUBLICO = ['==', ['get', 'status_vitrine'], 'publico'];
+const FILTRO_RESIDENCIAL = ['==', ['get', 'status_vitrine'], 'residencial'];
 
 const camadaPinoBase = {
   id: 'lotes-pino-base',
@@ -45,7 +55,7 @@ const camadaPinoBase = {
   filter: FILTRO_OCUPADO,
   paint: {
     'circle-radius': 16,
-    'circle-color': '#4f46e5',
+    'circle-color': COR_COMERCIAL,
     'circle-stroke-width': 2,
     'circle-stroke-color': '#ffffff',
   },
@@ -63,6 +73,76 @@ const camadaPinoNumero = {
   },
   paint: { 'text-color': '#ffffff' },
 };
+
+// Quadrado (público) e triângulo (residencial): ícones gerados via canvas
+// (ver criarIconeQuadrado/criarIconeTriangulo) porque a camada 'circle' do
+// MapLibre só desenha círculos.
+const camadaPinoPublico = {
+  id: 'lotes-pino-publico',
+  type: 'symbol',
+  filter: FILTRO_PUBLICO,
+  layout: {
+    'icon-image': 'cidade-digital-quadrado-publico',
+    'icon-size': 1,
+    'icon-allow-overlap': true,
+    'icon-ignore-placement': true,
+  },
+};
+const camadaPinoResidencial = {
+  id: 'lotes-pino-residencial',
+  type: 'symbol',
+  filter: FILTRO_RESIDENCIAL,
+  layout: {
+    'icon-image': 'cidade-digital-triangulo-residencial',
+    'icon-size': 1,
+    'icon-allow-overlap': true,
+    'icon-ignore-placement': true,
+  },
+};
+
+function criarIconeQuadrado(cor) {
+  const tam = 28;
+  const canvas = document.createElement('canvas');
+  canvas.width = tam;
+  canvas.height = tam;
+  const ctx = canvas.getContext('2d');
+  const m = 3;
+  ctx.fillStyle = cor;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2;
+  ctx.fillRect(m, m, tam - 2 * m, tam - 2 * m);
+  ctx.strokeRect(m, m, tam - 2 * m, tam - 2 * m);
+  return ctx.getImageData(0, 0, tam, tam);
+}
+
+function criarIconeTriangulo(cor) {
+  const tam = 28;
+  const canvas = document.createElement('canvas');
+  canvas.width = tam;
+  canvas.height = tam;
+  const ctx = canvas.getContext('2d');
+  const m = 3;
+  ctx.beginPath();
+  ctx.moveTo(tam / 2, m);
+  ctx.lineTo(tam - m, tam - m);
+  ctx.lineTo(m, tam - m);
+  ctx.closePath();
+  ctx.fillStyle = cor;
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2;
+  ctx.fill();
+  ctx.stroke();
+  return ctx.getImageData(0, 0, tam, tam);
+}
+
+function garantirIconesPersonalizados(mapa) {
+  if (!mapa.hasImage('cidade-digital-quadrado-publico')) {
+    mapa.addImage('cidade-digital-quadrado-publico', criarIconeQuadrado(COR_PUBLICO));
+  }
+  if (!mapa.hasImage('cidade-digital-triangulo-residencial')) {
+    mapa.addImage('cidade-digital-triangulo-residencial', criarIconeTriangulo(COR_RESIDENCIAL));
+  }
+}
 
 // Camadas 'circle' só funcionam com geometria de ponto — por isso os pinos do
 // modo virtual usam uma versão com centróide de cada lote, não o polígono.
@@ -187,8 +267,10 @@ export default function MapaLotes({
   }, [voarPara]);
 
   const aoCarregar = useCallback(() => {
+    const mapa = mapRef.current?.getMap();
+    if (mapa) garantirIconesPersonalizados(mapa);
     recarregar();
-    aplicarVisibilidadeRuas(mapRef.current?.getMap(), modo === 'virtual');
+    aplicarVisibilidadeRuas(mapa, modo === 'virtual');
   }, [recarregar, modo]);
 
   const aoClicar = useCallback(
@@ -199,8 +281,9 @@ export default function MapaLotes({
     [onSelecionarLote]
   );
 
+  const PINOS_INTERATIVOS = ['lotes-pino-base', 'lotes-pino-publico', 'lotes-pino-residencial'];
   const camadasInterativas =
-    modo === 'virtual' ? ['lotes-pino-base'] : ['lotes-fill', 'lotes-pino-base'];
+    modo === 'virtual' ? PINOS_INTERATIVOS : ['lotes-fill', ...PINOS_INTERATIVOS];
 
   return (
     <Map
@@ -233,6 +316,8 @@ export default function MapaLotes({
         </Source>
       )}
       <Source key="lotes-pontos" id="lotes-pontos" type="geojson" data={dadosPinos}>
+        <Layer {...camadaPinoPublico} />
+        <Layer {...camadaPinoResidencial} />
         <Layer {...camadaPinoBase} />
         <Layer {...camadaPinoNumero} />
       </Source>

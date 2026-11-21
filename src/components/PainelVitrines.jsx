@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Search, Store, MapPin } from 'lucide-react';
 import { buscarVitrinesCidade } from '../lib/supabase/queries.js';
+import { CATEGORIAS_POR_TIPO } from '../lib/categorias.js';
 
-export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar }) {
+const CATEGORIAS = [...new Set([...CATEGORIAS_POR_TIPO.comercial, ...CATEGORIAS_POR_TIPO.publica])].sort();
+
+export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, categoria, setCategoria }) {
   const [vitrines, setVitrines] = useState([]);
   const [termo, setTermo] = useState('');
   const [carregando, setCarregando] = useState(true);
@@ -22,14 +25,16 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar }
 
   const filtradas = useMemo(() => {
     const t = termo.trim().toLowerCase();
-    if (!t) return vitrines;
-    return vitrines.filter(
-      (v) =>
+    return vitrines.filter((v) => {
+      if (categoria && v.categoria !== categoria) return false;
+      if (!t) return true;
+      return (
         v.nome_fantasia?.toLowerCase().includes(t) ||
         v.categoria?.toLowerCase().includes(t) ||
         v.endereco?.toLowerCase().includes(t)
-    );
-  }, [vitrines, termo]);
+      );
+    });
+  }, [vitrines, termo, categoria]);
 
   return (
     <aside className="flex h-full w-full max-w-sm flex-col border-l bg-white">
@@ -46,6 +51,21 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar }
             onChange={(e) => setTermo(e.target.value)}
           />
         </div>
+
+        {setCategoria && (
+          <select
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            className="mt-2 w-full rounded border px-2 py-1 text-xs sm:hidden"
+          >
+            <option value="">Todas as categorias</option>
+            {CATEGORIAS.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">

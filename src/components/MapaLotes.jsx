@@ -125,13 +125,22 @@ export default function MapaLotes({
   onSelecionarLote,
   modo = 'fisico',
   voarPara,
+  categoria,
 }) {
   const mapRef = useRef(null);
   const timer = useRef(null);
   const [dados, setDados] = useState(VAZIO);
   const [carregando, setCarregando] = useState(false);
 
-  const dadosPinos = useMemo(() => paraPontos(dados), [dados]);
+  // Filtro por categoria (vindo do cabeçalho): só mostra lotes cuja vitrine
+  // seja dessa categoria — os demais (vagos, residenciais, outras
+  // categorias) somem do mapa enquanto o filtro estiver ativo.
+  const dadosFiltrados = useMemo(() => {
+    if (!categoria) return dados;
+    return { type: 'FeatureCollection', features: dados.features.filter((f) => f.properties?.categoria === categoria) };
+  }, [dados, categoria]);
+
+  const dadosPinos = useMemo(() => paraPontos(dadosFiltrados), [dadosFiltrados]);
 
   const recarregar = useCallback(async () => {
     const mapa = mapRef.current?.getMap();
@@ -214,7 +223,7 @@ export default function MapaLotes({
       }}
     >
       {modo === 'fisico' && (
-        <Source key="lotes" id="lotes" type="geojson" data={dados}>
+        <Source key="lotes" id="lotes" type="geojson" data={dadosFiltrados}>
           <Layer {...camadaPreenchimento} />
           <Layer {...camadaContorno} />
           <Layer

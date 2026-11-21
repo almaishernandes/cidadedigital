@@ -12,6 +12,9 @@ import MapaLotes from '../components/MapaLotes.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
 import PainelLotesFisico from '../components/PainelLotesFisico.jsx';
+import { CATEGORIAS_POR_TIPO } from '../lib/categorias.js';
+
+const CATEGORIAS = [...new Set([...CATEGORIAS_POR_TIPO.comercial, ...CATEGORIAS_POR_TIPO.publica])].sort();
 
 const CIDADES = {
   'Osvaldo Cruz': { longitude: -50.8778, latitude: -21.7969, zoom: 15 },
@@ -42,6 +45,7 @@ export default function MapaPublico() {
   const [voarPara, setVoarPara] = useState(null);
   const [painelAberto, setPainelAberto] = useState(true);
   const [abaMobile, setAbaMobile] = useState('cidade'); // 'cidade' | 'vitrines' — só no celular
+  const [categoria, setCategoria] = useState('');
   const [barraEl, setBarraEl] = useState(null);
 
   // A barra de controles mora no cabeçalho do site (ver Layout.jsx), ao lado
@@ -103,6 +107,19 @@ export default function MapaPublico() {
           <option key={c}>{c}</option>
         ))}
       </select>
+      <select
+        value={categoria}
+        onChange={(e) => setCategoria(e.target.value)}
+        className="hidden shrink-0 rounded border px-2 py-1 text-sm sm:block"
+        title="Filtrar por categoria"
+      >
+        <option value="">Todas as categorias</option>
+        {CATEGORIAS.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </select>
       <div className="hidden shrink-0 overflow-hidden whitespace-nowrap rounded-full border text-xs sm:flex">
         {MODOS.map(({ chave, rotulo, Icone, cls }) => (
           <button
@@ -143,6 +160,7 @@ export default function MapaPublico() {
           onSelecionarLote={aoSelecionarNoMapa}
           modo={modo}
           voarPara={voarPara}
+          categoria={categoria}
         />
       </div>
 
@@ -170,9 +188,21 @@ export default function MapaPublico() {
           }`}
         >
           {modo === 'fisico' ? (
-            <PainelLotesFisico cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+            <PainelLotesFisico
+              cidade={cidade}
+              loteSelecionado={lote?.lote_id}
+              aoSelecionar={aoSelecionarNaLista}
+              categoria={categoria}
+              setCategoria={setCategoria}
+            />
           ) : (
-            <PainelVitrines cidade={cidade} loteSelecionado={lote?.lote_id} aoSelecionar={aoSelecionarNaLista} />
+            <PainelVitrines
+              cidade={cidade}
+              loteSelecionado={lote?.lote_id}
+              aoSelecionar={aoSelecionarNaLista}
+              categoria={categoria}
+              setCategoria={setCategoria}
+            />
           )}
         </div>
 

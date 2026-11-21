@@ -6,4 +6,10 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  /* Sem isso, o Chrome reescala o tamanho da fonte (inclusive do
+     cabeçalho) automaticamente quando a página fica mais alta que a
+     tela — dava a impressão de o cabeçalho "encolher" com conteúdo
+     grande (ex.: lista de licenças). */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }

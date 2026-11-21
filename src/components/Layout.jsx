@@ -170,7 +170,7 @@ export default function Layout() {
         </div>
       )}
 
-      <main className="relative flex-1">
+      <main className="relative min-h-0 flex-1 overflow-y-auto">
         <Outlet />
       </main>
     </div>

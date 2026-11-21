@@ -369,18 +369,18 @@ export default function PainelComerciante() {
 
       {licencas.length > 0 && (
         <>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col divide-y rounded-lg border">
             {licencas.map((l) => {
               const st = ROTULO_STATUS[l.status] ?? ROTULO_STATUS.pendente;
               return (
                 <button
                   key={l.id}
                   onClick={() => setSel(l)}
-                  className={`rounded-lg border px-3 py-2 text-left text-sm ${
-                    sel?.id === l.id ? 'border-blue-600 ring-1 ring-blue-600' : ''
+                  className={`flex items-center justify-between gap-3 px-3 py-2.5 text-left text-sm hover:bg-slate-50 ${
+                    sel?.id === l.id ? 'bg-indigo-50' : ''
                   }`}
                 >
-                  <span className="block font-medium">
+                  <span className="font-medium">
                     {l.numero_licenca != null && (
                       <span className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-indigo-600 align-middle text-xs font-semibold text-white">
                         {l.numero_licenca}
@@ -389,7 +389,7 @@ export default function PainelComerciante() {
                     {l.estabelecimento?.nome_fantasia ?? l.lote?.endereco ?? 'Lote'}
                   </span>
                   <span
-                    className={`mt-1 inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs ${st.cls}`}
+                    className={`inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-xs ${st.cls}`}
                   >
                     <st.Icone size={12} /> {st.txt}
                   </span>

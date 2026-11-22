@@ -6,7 +6,7 @@ export default function Entrar() {
   const { entrar, cadastrar } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
-  const destino = loc.state?.de ?? '/painel';
+  const destino = loc.state?.de ?? '/';
 
   const [modo, setModo] = useState('entrar');
   const [nome, setNome] = useState('');

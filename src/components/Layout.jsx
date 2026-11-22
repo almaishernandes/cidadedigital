@@ -16,8 +16,23 @@ export default function Layout() {
   const { usuario, perfil, ehAdmin, sair } = useAuth();
   const nav = useNavigate();
   const [menuAberto, setMenuAberto] = useState(false);
-  const [avisoFechado, setAvisoFechado] = useState(false);
+  const [avisoFechado, setAvisoFechado] = useState(() => {
+    try {
+      return localStorage.getItem('cidadeDigital.avisoComercianteFechado') === '1';
+    } catch {
+      return false;
+    }
+  });
   const mostrarAviso = usuario && perfil?.funcao === 'visitante' && !avisoFechado;
+
+  function fecharAviso() {
+    setAvisoFechado(true);
+    try {
+      localStorage.setItem('cidadeDigital.avisoComercianteFechado', '1');
+    } catch {
+      // ignora se localStorage não estiver disponível
+    }
+  }
 
   async function sairEFechar() {
     setMenuAberto(false);
@@ -109,11 +124,15 @@ export default function Layout() {
             cotações que desejar. A qualquer momento você pode se tornar um comerciante (vender o
             seu produto aqui).
           </span>
-          <Link to="/como-funciona" className="shrink-0 font-semibold underline hover:no-underline">
+          <Link
+            to="/como-funciona"
+            onClick={fecharAviso}
+            className="shrink-0 font-semibold underline hover:no-underline"
+          >
             Clique aqui para mais informações
           </Link>
           <button
-            onClick={() => setAvisoFechado(true)}
+            onClick={fecharAviso}
             className="ml-auto shrink-0 rounded p-0.5 text-amber-700 hover:bg-amber-100"
             aria-label="Fechar aviso"
           >

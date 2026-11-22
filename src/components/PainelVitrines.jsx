@@ -5,6 +5,7 @@ import { buscarVitrinesCidade } from '../lib/supabase/queries.js';
 export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, filtro }) {
   const [vitrines, setVitrines] = useState([]);
   const [termo, setTermo] = useState('');
+  const [rua, setRua] = useState('');
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState(null);
 
@@ -20,9 +21,12 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
     };
   }, [cidade]);
 
+  const ruas = useMemo(() => [...new Set(vitrines.map((v) => v.endereco).filter(Boolean))].sort(), [vitrines]);
+
   const filtradas = useMemo(() => {
     const t = termo.trim().toLowerCase();
     return vitrines.filter((v) => {
+      if (rua && v.endereco !== rua) return false;
       if (filtro?.setor) {
         const setorDaVitrine = v.tipo === 'publica' ? 'Público' : 'Privado';
         if (setorDaVitrine !== filtro.setor) return false;
@@ -36,7 +40,7 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
         v.endereco?.toLowerCase().includes(t)
       );
     });
-  }, [vitrines, termo, filtro]);
+  }, [vitrines, termo, rua, filtro]);
 
   return (
     <aside className="flex h-full w-full max-w-sm flex-col border-l bg-white">
@@ -53,6 +57,20 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
             onChange={(e) => setTermo(e.target.value)}
           />
         </div>
+
+        <select
+          value={rua}
+          onChange={(e) => setRua(e.target.value)}
+          className="mt-2 w-full rounded border px-2 py-1.5 text-sm"
+          title="Filtrar por rua"
+        >
+          <option value="">Todas as ruas</option>
+          {ruas.map((r) => (
+            <option key={r} value={r}>
+              {r}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex-1 overflow-y-auto">

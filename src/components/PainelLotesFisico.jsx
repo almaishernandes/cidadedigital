@@ -6,7 +6,6 @@ import { CATEGORIAS_POR_TIPO } from '../lib/categorias.js';
 
 const ABAS = [
   { chave: 'ocupado', rotulo: 'Comercial', cor: STATUS_MAPA.ocupado.cor },
-  { chave: 'residencial', rotulo: 'Residencial', cor: STATUS_MAPA.residencial.cor },
   { chave: 'publico', rotulo: 'Público', cor: STATUS_MAPA.publico.cor },
 ];
 

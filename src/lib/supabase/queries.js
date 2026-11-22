@@ -88,6 +88,18 @@ export async function buscarTaxonomiaCategorias() {
   return data ?? [];
 }
 
+/** Lista oficial de ruas/logradouros de uma cidade, pro filtro de rua no mapa Digital. */
+export async function buscarRuasCidade(cidade) {
+  const { data, error } = await supabase
+    .from('ruas')
+    .select('logradouro')
+    .eq('municipio', cidade)
+    .eq('ativo', true)
+    .order('logradouro');
+  if (error) throw error;
+  return (data ?? []).map((r) => r.logradouro);
+}
+
 export function linkWhatsApp(telefone, mensagem) {
   const num = String(telefone ?? '').replace(/\D/g, '');
   const texto = encodeURIComponent(mensagem ?? 'Olá! Vi sua vitrine na Cidade Digital.');

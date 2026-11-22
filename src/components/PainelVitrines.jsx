@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Search, Store, MapPin } from 'lucide-react';
-import { buscarVitrinesCidade } from '../lib/supabase/queries.js';
+import { buscarVitrinesCidade, buscarRuasCidade } from '../lib/supabase/queries.js';
 
 export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, filtro }) {
   const [vitrines, setVitrines] = useState([]);
+  const [ruasCidade, setRuasCidade] = useState([]);
   const [termo, setTermo] = useState('');
   const [rua, setRua] = useState('');
   const [carregando, setCarregando] = useState(true);
@@ -16,12 +17,20 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
       .then((r) => vivo && setVitrines(r))
       .catch((e) => vivo && setErro(e.message))
       .finally(() => vivo && setCarregando(false));
+    buscarRuasCidade(cidade)
+      .then((r) => vivo && setRuasCidade(r))
+      .catch(() => {});
     return () => {
       vivo = false;
     };
   }, [cidade]);
 
-  const ruas = useMemo(() => [...new Set(vitrines.map((v) => v.endereco).filter(Boolean))].sort(), [vitrines]);
+  // Lista oficial de ruas do cadastro (ruas), com fallback pros endereços
+  // que já têm vitrine, caso a cidade ainda não tenha o cadastro completo.
+  const ruas = useMemo(() => {
+    if (ruasCidade.length > 0) return ruasCidade;
+    return [...new Set(vitrines.map((v) => v.endereco).filter(Boolean))].sort();
+  }, [ruasCidade, vitrines]);
 
   const filtradas = useMemo(() => {
     const t = termo.trim().toLowerCase();

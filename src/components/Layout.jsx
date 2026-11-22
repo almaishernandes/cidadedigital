@@ -41,7 +41,10 @@ export default function Layout() {
           <span className="hidden sm:inline">Cidade Digital</span>
         </Link>
         <nav className="hidden shrink-0 items-center gap-1 sm:flex">
-          {usuario && (
+          <NavLink to="/" className={linkCls} end>
+            Mapa
+          </NavLink>
+          {usuario && perfil?.funcao !== 'visitante' && (
             <NavLink to="/painel" className={linkCls}>
               <span className="inline-flex items-center gap-1">
                 <Store size={14} /> Vitrines
@@ -62,9 +65,6 @@ export default function Layout() {
               </span>
             </NavLink>
           )}
-          <NavLink to="/" className={linkCls} end>
-            Mapa
-          </NavLink>
         </nav>
 
         <NavLink to="/" end className="shrink-0 px-2 py-1.5 text-sm font-medium text-slate-700 sm:hidden">
@@ -151,7 +151,7 @@ export default function Layout() {
               </button>
             </div>
 
-            {usuario && (
+            {usuario && perfil?.funcao !== 'visitante' && (
               <NavLink to="/painel" className={linkCls} onClick={() => setMenuAberto(false)}>
                 <span className="inline-flex items-center gap-1">
                   <Store size={14} /> Vitrines

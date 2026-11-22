@@ -110,32 +110,18 @@ export default function Layout() {
       </header>
 
       {mostrarAviso && (
-        <div className="flex flex-col gap-0.5 border-b bg-amber-50 px-3 py-1.5 text-xs text-amber-900 sm:px-4 sm:text-sm">
-          <div className="flex items-center gap-1.5">
-            <Sparkles size={14} className="shrink-0 text-amber-600" />
-            <p className="flex-1 font-semibold">Cadastre sua Vitrine e torne-se um Comerciante</p>
-            <button
-              onClick={fecharAviso}
-              className="shrink-0 rounded p-0.5 text-amber-700 hover:bg-amber-100"
-              aria-label="Fechar aviso"
-            >
-              <X size={14} />
-            </button>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 pl-[20px]">
-            <span>
-              Você tem livre acesso ao app pra visitar a Cidade Digital e fazer compras através das
-              cotações que desejar. A qualquer momento você pode se tornar um comerciante (vender o
-              seu produto aqui).
-            </span>
-            <Link
-              to="/como-funciona"
-              onClick={fecharAviso}
-              className="shrink-0 font-semibold underline hover:no-underline"
-            >
-              Clique aqui para mais informações
-            </Link>
-          </div>
+        <div className="flex items-center gap-1.5 border-b bg-amber-50 px-3 py-1.5 text-xs text-amber-900 sm:px-4 sm:text-sm">
+          <Sparkles size={14} className="shrink-0 text-amber-600" />
+          <Link to="/como-funciona" onClick={fecharAviso} className="flex-1 font-semibold underline hover:no-underline">
+            Cadastre sua Vitrine e torne-se um Comerciante
+          </Link>
+          <button
+            onClick={fecharAviso}
+            className="shrink-0 rounded p-0.5 text-amber-700 hover:bg-amber-100"
+            aria-label="Fechar aviso"
+          >
+            <X size={14} />
+          </button>
         </div>
       )}
 

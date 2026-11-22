@@ -282,11 +282,19 @@ alter table estabelecimentos add column if not exists subcategoria text;
 
 -- Views e RPCs públicas passam a expor subcategoria também, pra filtrar o
 -- mapa por categoria + subcategoria (além de setor, via status_vitrine).
-create or replace view estabelecimentos_publicos as
-  select e.id, e.nome_fantasia, e.categoria, e.subcategoria, e.descricao,
+-- "create or replace view" não deixa inserir uma coluna no meio da lista
+-- (só no fim) nem renomear — como subcategoria é nova, precisa dropar e
+-- recriar a view do zero. CASCADE porque lotes_cidade/vitrines_cidade/
+-- lotes_geojson/vitrines_do_lote dependem dela — todas são recriadas
+-- logo em seguida nesta mesma migração.
+drop view if exists estabelecimentos_publicos cascade;
+
+create view estabelecimentos_publicos as
+  select e.id, e.nome_fantasia, e.categoria, e.descricao,
          e.telefone_whatsapp, e.instagram_url, e.website_url,
          e.ecommerce_url, e.logo_url, e.horarios,
-         l.lote_id, l.numero_licenca
+         l.lote_id, l.numero_licenca,
+         e.subcategoria
   from estabelecimentos e
   join licencas l on l.id = e.licenca_id
   where l.status = 'ativa'

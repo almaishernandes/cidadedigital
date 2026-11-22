@@ -2,16 +2,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { Search, LayoutGrid, MapPin } from 'lucide-react';
 import { buscarLotesCidade } from '../lib/supabase/queries.js';
 import { STATUS_MAPA } from './StatusBadge.jsx';
-import { CATEGORIAS_POR_TIPO } from '../lib/categorias.js';
 
 const ABAS = [
   { chave: 'ocupado', rotulo: 'Comercial', cor: STATUS_MAPA.ocupado.cor },
   { chave: 'publico', rotulo: 'Público', cor: STATUS_MAPA.publico.cor },
 ];
 
-const CATEGORIAS = [...new Set([...CATEGORIAS_POR_TIPO.comercial, ...CATEGORIAS_POR_TIPO.publica])].sort();
-
-export default function PainelLotesFisico({ cidade, loteSelecionado, aoSelecionar, categoria, setCategoria }) {
+export default function PainelLotesFisico({ cidade, loteSelecionado, aoSelecionar, filtro }) {
   const [lotes, setLotes] = useState([]);
   const [termo, setTermo] = useState('');
   const [aba, setAba] = useState('todos'); // 'todos' | uma das ABAS — nenhum filtro ativo mostra tudo
@@ -34,7 +31,12 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
     const t = termo.trim().toLowerCase();
     return lotes.filter((l) => {
       if (aba !== 'todos' && l.status_vitrine !== aba) return false;
-      if (categoria && l.categoria !== categoria) return false;
+      if (filtro?.setor) {
+        const setorDoLote = l.status_vitrine === 'publico' ? 'Público' : l.status_vitrine === 'ocupado' ? 'Privado' : null;
+        if (setorDoLote !== filtro.setor) return false;
+      }
+      if (filtro?.categoria && l.categoria !== filtro.categoria) return false;
+      if (filtro?.subcategoria && l.subcategoria !== filtro.subcategoria) return false;
       if (!t) return true;
       return (
         l.nome_fantasia?.toLowerCase().includes(t) ||
@@ -42,7 +44,7 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
         l.endereco?.toLowerCase().includes(t)
       );
     });
-  }, [lotes, termo, aba, categoria]);
+  }, [lotes, termo, aba, filtro]);
 
   return (
     <aside className="flex h-full w-full flex-col bg-white">
@@ -78,21 +80,6 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
             </button>
           ))}
         </div>
-
-        {setCategoria && (
-          <select
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            className="mt-2 w-full rounded border px-2 py-1 text-xs sm:hidden"
-          >
-            <option value="">Todas as categorias</option>
-            {CATEGORIAS.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">

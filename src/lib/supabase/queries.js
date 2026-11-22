@@ -44,7 +44,7 @@ export async function buscarEstabelecimentoPorLote(loteId, numeroLicenca) {
   let q = supabase
     .from('estabelecimentos_publicos')
     .select(
-      'id, nome_fantasia, categoria, descricao, telefone_whatsapp, instagram_url, website_url, logo_url, lote_id, numero_licenca'
+      'id, nome_fantasia, categoria, subcategoria, descricao, telefone_whatsapp, instagram_url, website_url, logo_url, lote_id, numero_licenca'
     );
   q = numeroLicenca != null ? q.eq('numero_licenca', numeroLicenca) : q.eq('lote_id', loteId);
   const { data, error } = await q.maybeSingle();
@@ -71,6 +71,21 @@ export async function buscarProdutos(estabelecimentoId, { pagina = 0, tamanho = 
     .range(de, ate);
   if (error) throw error;
   return { produtos: data ?? [], total: count ?? 0 };
+}
+
+/** Taxonomia de categorias/subcategorias (Público/Privado), pra montar os
+ * seletores em cascata (setor → categoria → subcategoria) na edição da
+ * vitrine e no filtro do mapa. */
+export async function buscarTaxonomiaCategorias() {
+  const { data, error } = await supabase
+    .from('categorias_taxonomia')
+    .select('setor, setor_slug, categoria, categoria_slug, subcategoria, subcategoria_slug')
+    .eq('ativo', true)
+    .order('setor')
+    .order('categoria')
+    .order('subcategoria');
+  if (error) throw error;
+  return data ?? [];
 }
 
 export function linkWhatsApp(telefone, mensagem) {

@@ -12,9 +12,12 @@ import MapaLotes from '../components/MapaLotes.jsx';
 import PainelLote from '../components/PainelLote.jsx';
 import PainelVitrines from '../components/PainelVitrines.jsx';
 import PainelLotesFisico from '../components/PainelLotesFisico.jsx';
-import { CATEGORIAS_POR_TIPO } from '../lib/categorias.js';
+import { buscarTaxonomiaCategorias } from '../lib/supabase/queries.js';
 
-const CATEGORIAS = [...new Set([...CATEGORIAS_POR_TIPO.comercial, ...CATEGORIAS_POR_TIPO.publica])].sort();
+const SETORES = [
+  { valor: 'Privado', rotulo: 'Comercial' },
+  { valor: 'Público', rotulo: 'Público' },
+];
 
 const CIDADES = {
   'Osvaldo Cruz': { longitude: -50.8778, latitude: -21.7969, zoom: 15 },
@@ -45,7 +48,10 @@ export default function MapaPublico() {
   const [voarPara, setVoarPara] = useState(null);
   const [painelAberto, setPainelAberto] = useState(true);
   const [abaMobile, setAbaMobile] = useState('cidade'); // 'cidade' | 'vitrines' — só no celular
-  const [categoria, setCategoria] = useState('');
+  const [taxonomia, setTaxonomia] = useState([]);
+  const [filtroSetor, setFiltroSetor] = useState('');
+  const [filtroCategoria, setFiltroCategoria] = useState('');
+  const [filtroSubcategoria, setFiltroSubcategoria] = useState('');
   const [barraEl, setBarraEl] = useState(null);
 
   // A barra de controles mora no cabeçalho do site (ver Layout.jsx), ao lado
@@ -53,6 +59,25 @@ export default function MapaPublico() {
   useEffect(() => {
     setBarraEl(document.getElementById('barra-contextual'));
   }, []);
+
+  useEffect(() => {
+    buscarTaxonomiaCategorias()
+      .then(setTaxonomia)
+      .catch((e) => console.error('Falha ao carregar categorias:', e.message));
+  }, []);
+
+  const categoriasDoSetor = [
+    ...new Set(taxonomia.filter((t) => !filtroSetor || t.setor === filtroSetor).map((t) => t.categoria)),
+  ];
+  const subcategoriasDaCategoria = [
+    ...new Set(
+      taxonomia
+        .filter((t) => (!filtroSetor || t.setor === filtroSetor) && t.categoria === filtroCategoria)
+        .map((t) => t.subcategoria)
+    ),
+  ];
+
+  const filtro = { setor: filtroSetor, categoria: filtroCategoria, subcategoria: filtroSubcategoria };
 
   function aoSelecionarNoMapa(props) {
     setLote(props);
@@ -108,15 +133,49 @@ export default function MapaPublico() {
         ))}
       </select>
       <select
-        value={categoria}
-        onChange={(e) => setCategoria(e.target.value)}
+        value={filtroSetor}
+        onChange={(e) => {
+          setFiltroSetor(e.target.value);
+          setFiltroCategoria('');
+          setFiltroSubcategoria('');
+        }}
+        className="hidden shrink-0 rounded border px-2 py-1 text-sm sm:block"
+        title="Filtrar por setor"
+      >
+        <option value="">Comercial e Público</option>
+        {SETORES.map((s) => (
+          <option key={s.valor} value={s.valor}>
+            {s.rotulo}
+          </option>
+        ))}
+      </select>
+      <select
+        value={filtroCategoria}
+        onChange={(e) => {
+          setFiltroCategoria(e.target.value);
+          setFiltroSubcategoria('');
+        }}
         className="hidden shrink-0 rounded border px-2 py-1 text-sm sm:block"
         title="Filtrar por categoria"
       >
         <option value="">Todas as categorias</option>
-        {CATEGORIAS.map((c) => (
+        {categoriasDoSetor.map((c) => (
           <option key={c} value={c}>
             {c}
+          </option>
+        ))}
+      </select>
+      <select
+        value={filtroSubcategoria}
+        onChange={(e) => setFiltroSubcategoria(e.target.value)}
+        disabled={!filtroCategoria}
+        className="hidden shrink-0 rounded border px-2 py-1 text-sm disabled:bg-slate-50 disabled:text-slate-400 sm:block"
+        title="Filtrar por subcategoria"
+      >
+        <option value="">Todas as subcategorias</option>
+        {subcategoriasDaCategoria.map((s) => (
+          <option key={s} value={s}>
+            {s}
           </option>
         ))}
       </select>
@@ -160,7 +219,7 @@ export default function MapaPublico() {
           onSelecionarLote={aoSelecionarNoMapa}
           modo={modo}
           voarPara={voarPara}
-          categoria={categoria}
+          filtro={filtro}
         />
       </div>
 
@@ -192,16 +251,14 @@ export default function MapaPublico() {
               cidade={cidade}
               loteSelecionado={lote?.lote_id}
               aoSelecionar={aoSelecionarNaLista}
-              categoria={categoria}
-              setCategoria={setCategoria}
+              filtro={filtro}
             />
           ) : (
             <PainelVitrines
               cidade={cidade}
               loteSelecionado={lote?.lote_id}
               aoSelecionar={aoSelecionarNaLista}
-              categoria={categoria}
-              setCategoria={setCategoria}
+              filtro={filtro}
             />
           )}
         </div>

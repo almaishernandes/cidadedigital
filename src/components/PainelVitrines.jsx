@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Search, Store, MapPin } from 'lucide-react';
 import { buscarVitrinesCidade } from '../lib/supabase/queries.js';
-import { CATEGORIAS_POR_TIPO } from '../lib/categorias.js';
 
-const CATEGORIAS = [...new Set([...CATEGORIAS_POR_TIPO.comercial, ...CATEGORIAS_POR_TIPO.publica])].sort();
-
-export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, categoria, setCategoria }) {
+export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, filtro }) {
   const [vitrines, setVitrines] = useState([]);
   const [termo, setTermo] = useState('');
   const [carregando, setCarregando] = useState(true);
@@ -26,7 +23,12 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
   const filtradas = useMemo(() => {
     const t = termo.trim().toLowerCase();
     return vitrines.filter((v) => {
-      if (categoria && v.categoria !== categoria) return false;
+      if (filtro?.setor) {
+        const setorDaVitrine = v.tipo === 'publica' ? 'Público' : 'Privado';
+        if (setorDaVitrine !== filtro.setor) return false;
+      }
+      if (filtro?.categoria && v.categoria !== filtro.categoria) return false;
+      if (filtro?.subcategoria && v.subcategoria !== filtro.subcategoria) return false;
       if (!t) return true;
       return (
         v.nome_fantasia?.toLowerCase().includes(t) ||
@@ -34,7 +36,7 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
         v.endereco?.toLowerCase().includes(t)
       );
     });
-  }, [vitrines, termo, categoria]);
+  }, [vitrines, termo, filtro]);
 
   return (
     <aside className="flex h-full w-full max-w-sm flex-col border-l bg-white">
@@ -51,21 +53,6 @@ export default function PainelVitrines({ cidade, loteSelecionado, aoSelecionar, 
             onChange={(e) => setTermo(e.target.value)}
           />
         </div>
-
-        {setCategoria && (
-          <select
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            className="mt-2 w-full rounded border px-2 py-1 text-xs sm:hidden"
-          >
-            <option value="">Todas as categorias</option>
-            {CATEGORIAS.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">

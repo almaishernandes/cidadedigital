@@ -10,7 +10,7 @@ export async function minhasLicencas() {
       `id, status, tipo, numero_licenca, andar, sala, data_inicio, data_fim, observacao,
        lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, status_ocupacao, latitude, longitude, nome_lote, numero_lote ),
        estabelecimento:estabelecimentos (
-         id, nome_fantasia, categoria, descricao, telefone_whatsapp,
+         id, nome_fantasia, categoria, subcategoria, descricao, telefone_whatsapp,
          instagram_url, website_url, ecommerce_url, logo_url, horarios
        )`
     )
@@ -258,7 +258,7 @@ export async function licencasPorStatus(status = 'pendente') {
        lote:lotes ( id, cidade, endereco, numero, bairro, complemento, cep, area_m2, latitude, longitude, nome_lote, numero_lote ),
        perfil:perfis ( id, nome, email, telefone ),
        estabelecimento:estabelecimentos (
-         id, nome_fantasia, categoria, descricao, telefone_whatsapp,
+         id, nome_fantasia, categoria, subcategoria, descricao, telefone_whatsapp,
          instagram_url, website_url, ecommerce_url, logo_url, horarios
        )`
     )

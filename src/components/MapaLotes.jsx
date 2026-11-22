@@ -205,20 +205,34 @@ export default function MapaLotes({
   onSelecionarLote,
   modo = 'fisico',
   voarPara,
-  categoria,
+  filtro,
 }) {
   const mapRef = useRef(null);
   const timer = useRef(null);
   const [dados, setDados] = useState(VAZIO);
   const [carregando, setCarregando] = useState(false);
 
-  // Filtro por categoria (vindo do cabeçalho): só mostra lotes cuja vitrine
-  // seja dessa categoria — os demais (vagos, residenciais, outras
-  // categorias) somem do mapa enquanto o filtro estiver ativo.
+  // Filtro setor/categoria/subcategoria (vindo do cabeçalho): só mostra
+  // lotes cuja vitrine bata com o filtro — os demais (vagos, residenciais,
+  // outras categorias) somem do mapa enquanto o filtro estiver ativo. Setor
+  // não vem pronto do RPC: deriva de status_vitrine (ocupado = Privado,
+  // publico = Público).
   const dadosFiltrados = useMemo(() => {
-    if (!categoria) return dados;
-    return { type: 'FeatureCollection', features: dados.features.filter((f) => f.properties?.categoria === categoria) };
-  }, [dados, categoria]);
+    if (!filtro?.setor && !filtro?.categoria && !filtro?.subcategoria) return dados;
+    return {
+      type: 'FeatureCollection',
+      features: dados.features.filter((f) => {
+        const p = f.properties ?? {};
+        if (filtro.setor) {
+          const setorDoLote = p.status_vitrine === 'publico' ? 'Público' : p.status_vitrine === 'ocupado' ? 'Privado' : null;
+          if (setorDoLote !== filtro.setor) return false;
+        }
+        if (filtro.categoria && p.categoria !== filtro.categoria) return false;
+        if (filtro.subcategoria && p.subcategoria !== filtro.subcategoria) return false;
+        return true;
+      }),
+    };
+  }, [dados, filtro]);
 
   const dadosPinos = useMemo(() => paraPontos(dadosFiltrados), [dadosFiltrados]);
 

@@ -16,16 +16,11 @@ export default function Layout() {
   const { usuario, perfil, ehAdmin, sair } = useAuth();
   const nav = useNavigate();
   const [menuAberto, setMenuAberto] = useState(false);
-  // Só fecha pra essa visita (sessão da aba) — não salva no navegador, porque
-  // esse aviso é a forma de monetização do app: tem que voltar a aparecer
-  // toda vez que um visitante/consumidor entrar, até ele virar comerciante
-  // pagante (perfil.funcao deixa de ser 'visitante', e aí some de vez).
-  const [avisoFechado, setAvisoFechado] = useState(false);
-  const mostrarAviso = usuario && perfil?.funcao === 'visitante' && !avisoFechado;
-
-  function fecharAviso() {
-    setAvisoFechado(true);
-  }
+  // Sem dismiss/localStorage de propósito: esse botão é a forma de
+  // monetização do app, então tem que continuar visível pro
+  // visitante/consumidor sempre, até ele virar comerciante de verdade
+  // (perfil.funcao deixa de ser 'visitante').
+  const mostrarAviso = usuario && perfil?.funcao === 'visitante';
 
   async function sairEFechar() {
     setMenuAberto(false);
@@ -74,6 +69,16 @@ export default function Layout() {
         {/* Controles contextuais da página atual (ex.: cidade/modo do mapa) */}
         <div id="barra-contextual" className="flex min-w-0 flex-1 items-center gap-2 sm:flex-none" />
 
+        {mostrarAviso && (
+          <Link
+            to="/como-funciona"
+            className="hidden shrink-0 items-center gap-1.5 rounded-full bg-green-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700 sm:flex"
+          >
+            <Sparkles size={14} className="shrink-0" />
+            Cadastre sua Vitrine e torne-se um Comerciante
+          </Link>
+        )}
+
         <div className="ml-auto hidden shrink-0 items-center gap-2 text-sm sm:flex sm:gap-3">
           {usuario ? (
             <>
@@ -109,22 +114,6 @@ export default function Layout() {
         </button>
       </header>
 
-      {mostrarAviso && (
-        <div className="flex items-center gap-1.5 border-b bg-amber-50 px-3 py-1.5 text-xs text-amber-900 sm:px-4 sm:text-sm">
-          <Sparkles size={14} className="shrink-0 text-amber-600" />
-          <Link to="/como-funciona" onClick={fecharAviso} className="flex-1 font-semibold underline hover:no-underline">
-            Cadastre sua Vitrine e torne-se um Comerciante
-          </Link>
-          <button
-            onClick={fecharAviso}
-            className="shrink-0 rounded p-0.5 text-amber-700 hover:bg-amber-100"
-            aria-label="Fechar aviso"
-          >
-            <X size={14} />
-          </button>
-        </div>
-      )}
-
       {menuAberto && (
         <div className="fixed inset-0 z-50 sm:hidden">
           <div className="absolute inset-0 bg-black/30" onClick={() => setMenuAberto(false)} />
@@ -141,6 +130,17 @@ export default function Layout() {
                 <X size={18} />
               </button>
             </div>
+
+            {mostrarAviso && (
+              <Link
+                to="/como-funciona"
+                onClick={() => setMenuAberto(false)}
+                className="mb-1 flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"
+              >
+                <Sparkles size={14} className="shrink-0" />
+                Cadastre sua Vitrine e torne-se um Comerciante
+              </Link>
+            )}
 
             {usuario && perfil?.funcao !== 'visitante' && (
               <NavLink to="/painel" className={linkCls} onClick={() => setMenuAberto(false)}>

@@ -16,22 +16,15 @@ export default function Layout() {
   const { usuario, perfil, ehAdmin, sair } = useAuth();
   const nav = useNavigate();
   const [menuAberto, setMenuAberto] = useState(false);
-  const [avisoFechado, setAvisoFechado] = useState(() => {
-    try {
-      return localStorage.getItem('cidadeDigital.avisoComercianteFechado') === '1';
-    } catch {
-      return false;
-    }
-  });
+  // Só fecha pra essa visita (sessão da aba) — não salva no navegador, porque
+  // esse aviso é a forma de monetização do app: tem que voltar a aparecer
+  // toda vez que um visitante/consumidor entrar, até ele virar comerciante
+  // pagante (perfil.funcao deixa de ser 'visitante', e aí some de vez).
+  const [avisoFechado, setAvisoFechado] = useState(false);
   const mostrarAviso = usuario && perfil?.funcao === 'visitante' && !avisoFechado;
 
   function fecharAviso() {
     setAvisoFechado(true);
-    try {
-      localStorage.setItem('cidadeDigital.avisoComercianteFechado', '1');
-    } catch {
-      // ignora se localStorage não estiver disponível
-    }
   }
 
   async function sairEFechar() {

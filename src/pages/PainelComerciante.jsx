@@ -128,31 +128,10 @@ function Solicitar({ aoSolicitar }) {
   return (
     <div className="space-y-3 rounded-lg border p-4">
       <h3 className="font-medium">Solicitar licença para um endereço</h3>
-
-      <div className="flex gap-2 text-sm">
-        <button
-          type="button"
-          onClick={() => setTipo('comercial')}
-          className={`flex-1 rounded-lg border px-3 py-2 text-left ${
-            tipo === 'comercial' ? 'border-blue-600 ring-1 ring-blue-600' : ''
-          }`}
-        >
-          <span className="block font-medium">Comercial</span>
-          <span className="text-xs text-slate-500">Vitrine de negócio, com licença paga.</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setTipo('publica')}
-          className={`flex-1 rounded-lg border px-3 py-2 text-left ${
-            tipo === 'publica' ? 'border-violet-600 ring-1 ring-violet-600' : ''
-          }`}
-        >
-          <span className="block font-medium">Pública</span>
-          <span className="text-xs text-slate-500">
-            Só identifica o espaço no mapa (prefeitura, escola, praça...), sem custo.
-          </span>
-        </button>
-      </div>
+      <p className="text-xs text-slate-500">
+        Vitrine comercial, com licença paga. (Espaços públicos — prefeitura, escola, praça etc. —
+        são cadastrados só pelo Suporte.)
+      </p>
 
       <form onSubmit={buscarPorCep} className="flex flex-wrap items-end gap-2">
         <label className="text-sm">

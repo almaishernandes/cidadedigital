@@ -7,6 +7,7 @@ import Layout from './components/Layout.jsx';
 import RotaProtegida from './components/RotaProtegida.jsx';
 import MapaPublico from './pages/MapaPublico.jsx';
 import Entrar from './pages/Entrar.jsx';
+import ComoFunciona from './pages/ComoFunciona.jsx';
 import PainelComerciante from './pages/PainelComerciante.jsx';
 import AdminLicencas from './pages/AdminLicencas.jsx';
 import MinhasCotacoes from './pages/MinhasCotacoes.jsx';
@@ -21,6 +22,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route element={<Layout />}>
             <Route path="/" element={<MapaPublico />} />
             <Route path="/entrar" element={<Entrar />} />
+            <Route path="/como-funciona" element={<ComoFunciona />} />
             <Route
               path="/painel"
               element={

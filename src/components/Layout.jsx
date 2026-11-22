@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { MapPinned, LogOut, Store, ShieldCheck, FileText, Menu, X } from 'lucide-react';
+import { MapPinned, LogOut, Store, ShieldCheck, FileText, Menu, X, Sparkles } from 'lucide-react';
 import { useAuth } from '../lib/supabase/AuthContext.jsx';
 
 const linkCls = ({ isActive }) =>
@@ -16,6 +16,8 @@ export default function Layout() {
   const { usuario, perfil, ehAdmin, sair } = useAuth();
   const nav = useNavigate();
   const [menuAberto, setMenuAberto] = useState(false);
+  const [avisoFechado, setAvisoFechado] = useState(false);
+  const mostrarAviso = usuario && perfil?.funcao === 'visitante' && !avisoFechado;
 
   async function sairEFechar() {
     setMenuAberto(false);
@@ -98,6 +100,27 @@ export default function Layout() {
           <Menu size={20} />
         </button>
       </header>
+
+      {mostrarAviso && (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 border-b bg-amber-50 px-3 py-1.5 text-xs text-amber-900 sm:px-4 sm:text-sm">
+          <Sparkles size={14} className="shrink-0 text-amber-600" />
+          <span>
+            Você tem livre acesso ao app pra visitar a Cidade Digital e fazer compras através das
+            cotações que desejar. A qualquer momento você pode se tornar um comerciante (vender o
+            seu produto aqui).
+          </span>
+          <Link to="/como-funciona" className="shrink-0 font-semibold underline hover:no-underline">
+            Clique aqui para mais informações
+          </Link>
+          <button
+            onClick={() => setAvisoFechado(true)}
+            className="ml-auto shrink-0 rounded p-0.5 text-amber-700 hover:bg-amber-100"
+            aria-label="Fechar aviso"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
 
       {menuAberto && (
         <div className="fixed inset-0 z-50 sm:hidden">

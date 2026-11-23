@@ -207,7 +207,7 @@ export default function MapaPublico() {
       {barraEl && createPortal(barra, barraEl)}
 
       <div
-        className={`relative min-h-0 sm:flex-1 ${
+        className={`relative min-h-0 sm:h-full sm:flex-1 sm:shrink sm:overflow-visible ${
           abaMobile === 'cidade' ? 'flex-1' : 'h-0 shrink-0 overflow-hidden'
         }`}
       >

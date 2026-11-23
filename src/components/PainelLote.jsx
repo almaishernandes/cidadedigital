@@ -48,7 +48,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
     setCotacaoEnviada(false);
     setUnidades(null);
     setNumeroLicencaEscolhido(null);
-    if (lote.status_vitrine !== 'ocupado' || !usuario) return;
+    if ((lote.status_vitrine !== 'ocupado' && lote.status_vitrine !== 'publico') || !usuario) return;
 
     if (ehPredioComVarias && !lote.selecaoEspecifica) {
       buscarVitrinesDoLote(lote.lote_id).then((v) => vivo && setUnidades(v));
@@ -139,11 +139,10 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
   if (!lote) return null;
 
   const status =
-    lote.status_vitrine === 'ocupado'
-      ? 'ocupado'
-      : lote.status_vitrine === 'oportunidade'
-        ? 'oportunidade'
-        : 'residencial';
+    lote.status_vitrine === 'ocupado' || lote.status_vitrine === 'publico' || lote.status_vitrine === 'oportunidade'
+      ? lote.status_vitrine
+      : 'residencial';
+  const temVitrine = status === 'ocupado' || status === 'publico';
 
   const classes = inline
     ? 'flex h-full w-full flex-col overflow-y-auto bg-white'
@@ -189,9 +188,9 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
             )}
           </div>
           <h2 className="text-lg font-semibold leading-tight">
-            {status === 'ocupado' && !usuario
+            {temVitrine && !usuario
               ? 'Vitrine licenciada'
-              : status === 'ocupado' && ehPredioComVarias && !estab
+              : temVitrine && ehPredioComVarias && !estab
                 ? 'Prédio com várias vitrines'
                 : (estab?.nome_fantasia ?? 'Espaço disponível')}
           </h2>
@@ -217,7 +216,7 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
       <div className="flex-1 space-y-4 p-4">
         {carregando && <p className="text-sm text-slate-500">Carregando vitrine…</p>}
 
-        {status === 'ocupado' && !usuario && (
+        {temVitrine && !usuario && (
           <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-800">
             Entre ou cadastre-se pra ver os dados dessa vitrine (nome, contato, catálogo).{' '}
             <a className="font-medium underline" href="/entrar">
@@ -277,6 +276,17 @@ export default function PainelLote({ lote, aoFechar, inline = false }) {
 
         {estab && (
           <>
+            {!estab.descricao &&
+              !estab.telefone_whatsapp &&
+              !estab.instagram_url &&
+              !estab.website_url &&
+              !estab.ecommerce_url &&
+              produtos.length === 0 && (
+                <p className="text-sm text-slate-500">
+                  Essa vitrine ainda não tem mais informações cadastradas (descrição, contato ou catálogo).
+                </p>
+              )}
+
             {estab.descricao && <p className="text-sm text-slate-700">{estab.descricao}</p>}
 
             <div className="flex flex-wrap gap-2">

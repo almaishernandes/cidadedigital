@@ -100,10 +100,16 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
                   }`}
                 >
                   <span className="flex items-center gap-2">
-                    <span
-                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: cor }}
-                    />
+                    {l.numero_licenca != null ? (
+                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                        {l.numero_licenca}
+                      </span>
+                    ) : (
+                      <span
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: cor }}
+                      />
+                    )}
                     <span className="font-medium">
                       {l.nome_fantasia ??
                         (l.status_vitrine === 'oportunidade'
@@ -113,8 +119,14 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
                           : l.endereco)}
                     </span>
                   </span>
-                  {l.categoria && <span className="ml-[18px] block text-xs text-slate-500">{l.categoria}</span>}
-                  <span className="ml-[18px] flex items-center gap-1 text-xs text-slate-400">
+                  {l.categoria && (
+                    <span className={`${l.numero_licenca != null ? 'ml-8' : 'ml-[18px]'} block text-xs text-slate-500`}>
+                      {l.categoria}
+                    </span>
+                  )}
+                  <span
+                    className={`${l.numero_licenca != null ? 'ml-8' : 'ml-[18px]'} flex items-center gap-1 text-xs text-slate-400`}
+                  >
                     <MapPin size={11} />
                     {l.endereco}
                     {l.numero ? `, ${l.numero}` : ''}

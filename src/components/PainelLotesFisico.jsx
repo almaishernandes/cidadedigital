@@ -116,7 +116,11 @@ export default function PainelLotesFisico({ cidade, loteSelecionado, aoSeleciona
                           ? l.status_ocupacao && l.status_ocupacao !== 'vago'
                             ? 'Sem vitrine digital'
                             : 'Espaço disponível'
-                          : l.endereco)}
+                          : l.status_vitrine === 'residencial'
+                            ? 'Residencial'
+                            : l.status_vitrine === 'publico'
+                              ? 'Espaço público'
+                              : 'Sem vitrine digital')}
                     </span>
                   </span>
                   {l.categoria && (
